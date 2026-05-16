@@ -1,0 +1,36 @@
+
+name: descobrir-e-instalar-mcp
+description: >-
+  Workflow completo para descobrir, avaliar, classificar e instalar
+  MCPs a partir do awesome-mcp-servers e npm registry.
+  Suporta configuracao em opencode.json com fallback Python/pip.
+version: 1.0.0
+author: ecosystem
+compatibility: big-pickle
+---
+
+---
+name: descobrir-e-instalar-mcp
+description: >-
+  Workflow completo para descobrir, avaliar, classificar e instalar
+  MCPs a partir do awesome-mcp-servers e npm registry.
+  Suporta configuracao em opencode.json com fallback Python/pip.
+version: 1.0.0
+author: ecosystem
+compatibility: big-pickle
+---
+
+# descobrir-e-instalar-mcp
+
+Skill para descobrir novos servidores MCP, pesquisar alternativas no npm,
+classificar por categoria/disponibilidade e instalar no `opencode.json`
+com configuracao adequada.
+
+## Conteudo de Referencia
+
+Para manter esta skill leve, dados densos foram movidos para arquivos de referencia:
+
+- [`references/fontes-primarias.md`](references/fontes-primarias.md) — Fontes Primarias
+
+> *Detalhes em `references/quando-usar.md`*
+> *Detalhes em `references/exemplo-sessao.md`*

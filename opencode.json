@@ -417,6 +417,118 @@
         "persistence",
         "ai"
       ]
+    },
+    "hacker-news": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "mcp-hacker-news"
+      ],
+      "tags": [
+        "news",
+        "social"
+      ]
+    },
+    "newsmcp": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "@newsmcp/server"
+      ],
+      "tags": [
+        "news",
+        "real-time"
+      ]
+    },
+    "flowzap-mcp": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "flowzap-mcp"
+      ],
+      "tags": [
+        "diagrams",
+        "architecture"
+      ]
+    },
+    "astronomy-oracle": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "astronomy-oracle"
+      ],
+      "tags": [
+        "science",
+        "astronomy"
+      ]
+    },
+    "self-healer": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "python",
+        "nexus/mcp_self_healer.py"
+      ]
+    },
+    "decisionnode": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "decide-mcp"
+      ],
+      "tags": [
+        "memory",
+        "decisions",
+        "ai",
+        "ecosystem"
+      ]
+    },
+    "maswos-juridico": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "python",
+        "skills/maswos-v5-nexus/servers/juridico_server.py"
+      ],
+      "tags": [
+        "maswos",
+        "juridico",
+        "legal"
+      ]
+    },
+    "maswos-mcp": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "python",
+        "skills/maswos-v5-nexus/servers/maswos_server.py"
+      ],
+      "tags": [
+        "maswos",
+        "orchestration",
+        "agents"
+      ]
+    },
+    "maswos-rag": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "python",
+        "skills/maswos-v5-nexus/servers/rag_server.py"
+      ],
+      "tags": [
+        "maswos",
+        "rag",
+        "retrieval"
+      ]
     }
   },
   "lsp": {

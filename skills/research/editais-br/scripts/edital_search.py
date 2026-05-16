@@ -38,85 +38,50 @@ class Edital:
     titulo: str; url: str; portal: str = ''; score: float = 50.0
     fonte: str = 'web'; dimensoes: dict = field(default_factory=dict)
 
-EDITAIS_CURADOS = [
-    # Pesquisa
-    {'titulo':'Chamada Universal CNPq','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':''},
-    {'titulo':'Bolsa Produtividade CNPq','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':''},
-    {'titulo':'INCT - Institutos Nacionais','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':''},
-    {'titulo':'Jovem Pesquisador FAPESP','url':'https://fapesp.br/bolsas','portal':'fapesp','tipo':''},
-    {'titulo':'Projeto Tematico FAPESP','url':'https://fapesp.br/projetos','portal':'fapesp','tipo':''},
-    {'titulo':'Auxilio Pesquisa FAPERJ','url':'https://www.faperj.br','portal':'faperj','tipo':''},
-    {'titulo':'Demanda Universal FAPEMIG','url':'https://fapemig.br','portal':'fapemig','tipo':''},
-    {'titulo':'Chamada Finep Inovacao','url':'https://finep.gov.br/chamadas-publicas','portal':'finep','tipo':''},
-    {'titulo':'Subvencao Economica FINEP','url':'https://finep.gov.br/chamadas-publicas','portal':'finep','tipo':''},
-    {'titulo':'Pesquisa Inovativa SUS','url':'https://www.gov.br/saude','portal':'saude','tipo':''},
-    # Mestrado/Doutorado
-    {'titulo':'Bolsa CAPES Demanda Social','url':'https://www.gov.br/capes','portal':'capes','tipo':'mestrado'},
-    {'titulo':'Bolsa CNPq Mestrado','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':'mestrado'},
-    {'titulo':'Bolsa CNPq Doutorado','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':'doutorado'},
-    {'titulo':'PROEX CAPES','url':'https://www.gov.br/capes','portal':'capes','tipo':'doutorado'},
-    {'titulo':'PNPD CAPES Pos-Doutorado','url':'https://www.gov.br/capes','portal':'capes','tipo':'doutorado'},
-    {'titulo':'Doutorado Sanduiche SWE','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':'doutorado'},
-    {'titulo':'Bolsa PROSUC CAPES','url':'https://www.gov.br/capes','portal':'capes','tipo':'mestrado'},
-    # Startup/Inovacao
-    {'titulo':'InovAtiva Brasil','url':'https://inovativabrasil.com.br','portal':'inovativa','tipo':'startup'},
-    {'titulo':'Finep Startup','url':'https://finep.gov.br/chamadas-publicas','portal':'finep','tipo':'startup'},
-    {'titulo':'BNDES Garagem','url':'https://www.bndes.gov.br','portal':'bndes','tipo':'startup'},
-    {'titulo':'FAPESP PIPE','url':'https://fapesp.br/pipe','portal':'fapesp','tipo':'startup'},
-    {'titulo':'EMBRAPII','url':'https://embrapii.org.br','portal':'embrapii','tipo':'inovacao'},
-    {'titulo':'SEBRAE Inovacao','url':'https://sebrae.com.br','portal':'sebrae','tipo':'startup'},
-    {'titulo':'Lei do Bem P&D','url':'https://www.gov.br/mcti','portal':'mcti','tipo':'inovacao'},
-    # Cultura
-    {'titulo':'Lei Rouanet','url':'https://rouanet.cultura.gov.br','portal':'cultura','tipo':'cultura'},
-    {'titulo':'Fundo Setorial Audiovisual','url':'https://fsa.ancine.gov.br','portal':'cultura','tipo':'cultura'},
-    # Social
-    {'titulo':'Prosas Editais','url':'https://prosas.com.br/editais','portal':'prosas','tipo':'social'},
-    {'titulo':'Fundacao Banco Brasil','url':'https://www.fbb.org.br','portal':'social','tipo':'social'},
-    # FAPs Nordeste
-    {'titulo':'Edital Universal FAPESB','url':'https://fapesb.ba.gov.br','portal':'fapesb','tipo':''},
-    {'titulo':'Bolsa FAPESB Mestrado/Doutorado','url':'https://fapesb.ba.gov.br','portal':'fapesb','tipo':'mestrado'},
-    {'titulo':'Edital Universal FUNCAP','url':'https://funcap.ce.gov.br','portal':'funcap','tipo':''},
-    {'titulo':'Bolsa FUNCAP Mestrado/Doutorado','url':'https://funcap.ce.gov.br','portal':'funcap','tipo':'doutorado'},
-    {'titulo':'Edital Universal FACEPE','url':'https://facepe.pe.gov.br','portal':'facepe','tipo':''},
-    {'titulo':'Bolsa FACEPE Mestrado/Doutorado','url':'https://facepe.pe.gov.br','portal':'facepe','tipo':'mestrado'},
-    {'titulo':'Edital Universal FAPEMA','url':'https://fapema.ma.gov.br','portal':'fapema','tipo':''},
-    {'titulo':'Bolsa FAPEMA Mestrado/Doutorado','url':'https://fapema.ma.gov.br','portal':'fapema','tipo':'doutorado'},
-    {'titulo':'Edital Universal FAPESQ','url':'https://fapesq.pb.gov.br','portal':'fapesq','tipo':''},
-    {'titulo':'Bolsa FAPESQ Mestrado/Doutorado','url':'https://fapesq.pb.gov.br','portal':'fapesq','tipo':'mestrado'},
-    {'titulo':'Edital Universal FAPEPI','url':'https://fapepi.pi.gov.br','portal':'fapepi','tipo':''},
-    {'titulo':'Edital Universal FAPITEC','url':'https://fapitec.se.gov.br','portal':'fapitec','tipo':'startup'},
-    # FAPs Norte
-    {'titulo':'Edital Universal FAPEAM','url':'https://fapeam.am.gov.br','portal':'fapeam','tipo':''},
-    {'titulo':'Bolsa FAPEAM Mestrado/Doutorado','url':'https://fapeam.am.gov.br','portal':'fapeam','tipo':'doutorado'},
-    {'titulo':'Edital Universal FAPAC','url':'https://fapac.ac.gov.br','portal':'fapac','tipo':''},
-    {'titulo':'Edital Universal FAPT','url':'https://fapt.to.gov.br','portal':'fapt','tipo':'inovacao'},
-    {'titulo':'Edital Universal FAPERO','url':'https://fapero.ro.gov.br','portal':'fapero','tipo':''},
-    {'titulo':'Bolsa FAPERO Mestrado/Doutorado','url':'https://fapero.ro.gov.br','portal':'fapero','tipo':'mestrado'},
-    # FAPs Centro-Oeste
-    {'titulo':'Edital Universal FAPDF','url':'https://fapdf.df.gov.br','portal':'fapdf','tipo':''},
-    {'titulo':'Bolsa FAPDF Mestrado/Doutorado','url':'https://fapdf.df.gov.br','portal':'fapdf','tipo':'doutorado'},
-    {'titulo':'Edital Universal FUNDECT','url':'https://fundect.ms.gov.br','portal':'fundect','tipo':''},
-    {'titulo':'Bolsa FUNDECT Mestrado/Doutorado','url':'https://fundect.ms.gov.br','portal':'fundect','tipo':'mestrado'},
-    {'titulo':'Edital Universal FAPEMAT','url':'https://fapemat.mt.gov.br','portal':'fapemat','tipo':''},
-    # FAPs Sudeste (alem de FAPESP/FAPERJ/FAPEMIG)
-    {'titulo':'Edital Universal FAPES','url':'https://fapes.es.gov.br','portal':'fapes','tipo':''},
-    {'titulo':'Bolsa FAPES Mestrado/Doutorado','url':'https://fapes.es.gov.br','portal':'fapes','tipo':'mestrado'},
-    # FAPs Sul
-    {'titulo':'Edital Universal FAPERGS','url':'https://fapergs.rs.gov.br','portal':'fapergs','tipo':''},
-    {'titulo':'Bolsa FAPERGS Mestrado/Doutorado','url':'https://fapergs.rs.gov.br','portal':'fapergs','tipo':'doutorado'},
-    {'titulo':'Edital Universal FAPESC','url':'https://fapesc.sc.gov.br','portal':'fapesc','tipo':''},
-    {'titulo':'Bolsa FAPESC Mestrado/Doutorado','url':'https://fapesc.sc.gov.br','portal':'fapesc','tipo':'mestrado'},
-    # Bolsas no Exterior
-    {'titulo':'CAPES PRINT Internacionalizacao','url':'https://www.gov.br/capes','portal':'capes','tipo':'doutorado'},
-    {'titulo':'CAPES Fulbright Doutorado','url':'https://www.gov.br/capes','portal':'capes','tipo':'doutorado'},
-    {'titulo':'CNPq SWE Doutorado Sanduiche','url':'https://www.gov.br/cnpq','portal':'cnpq','tipo':'doutorado'},
-    {'titulo':'Bolsa CAPES Doutorado Pleno Exterior','url':'https://www.gov.br/capes','portal':'capes','tipo':'doutorado'},
-    # Setoriais
-    {'titulo':'Embrapa Chamada Projetos','url':'https://www.embrapa.br','portal':'embrapa','tipo':''},
-    {'titulo':'Fiocruz Edital Pesquisa','url':'https://portal.fiocruz.br','portal':'fiocruz','tipo':''},
-    {'titulo':'Petrobras Conexoes Inovacao','url':'https://petrobras.com.br','portal':'petrobras','tipo':'inovacao'},
-    {'titulo':'Vale Fundo Amapa Inovacao','url':'https://vale.com','portal':'vale','tipo':'startup'},
-]
+CURATED_JSON = Path(__file__).resolve().parent.parent / 'curated' / 'CURATED_EDITAIS_FULL.json'
+
+def _carregar_curados():
+    """Load curated editais from the unified JSON file (65 editais)."""
+    try:
+        with open(CURATED_JSON, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return [{
+            'titulo': e['nome'],
+            'url': _get_url(e['agencia']),
+            'portal': e['agencia'].lower().replace('/', ''),
+            'tipo': e['categoria'],
+            'valor': e.get('valor_anual_estimado'),
+            'score_pesquisa': e.get('scores', {}).get('pesquisa', 50),
+        } for e in data.get('editais', [])]
+    except Exception as ex:
+        print(f'[editais-br] ERRO ao carregar curadoria: {ex}', file=sys.stderr)
+        return []
+
+def _get_url(agencia):
+    m = {
+        'CNPq': 'https://www.gov.br/cnpq', 'CAPES': 'https://www.gov.br/capes',
+        'FINEP': 'https://finep.gov.br/chamadas-publicas',
+        'FAPESP': 'https://fapesp.br', 'FAPERJ': 'https://www.faperj.br',
+        'FAPEMIG': 'https://fapemig.br', 'FAPESB': 'https://fapesb.ba.gov.br',
+        'FUNCAP': 'https://funcap.ce.gov.br', 'FACEPE': 'https://facepe.pe.gov.br',
+        'FAPEMA': 'https://fapema.ma.gov.br', 'FAPESQ': 'https://fapesq.pb.gov.br',
+        'FAPEPI': 'https://fapepi.pi.gov.br', 'FAPITEC': 'https://fapitec.se.gov.br',
+        'FAPEAM': 'https://fapeam.am.gov.br', 'FAPAC': 'https://fapac.ac.gov.br',
+        'FAPT': 'https://fapt.to.gov.br', 'FAPERO': 'https://fapero.ro.gov.br',
+        'FAPDF': 'https://fapdf.df.gov.br', 'FUNDECT': 'https://fundect.ms.gov.br',
+        'FAPEMAT': 'https://fapemat.mt.gov.br', 'FAPES': 'https://fapes.es.gov.br',
+        'FAPERGS': 'https://fapergs.rs.gov.br', 'FAPESC': 'https://fapesc.sc.gov.br',
+        'MCTI': 'https://www.gov.br/mcti', 'MCTI/SEBRAE': 'https://inovativabrasil.com.br',
+        'BNDES': 'https://www.bndes.gov.br', 'EMBRAPII': 'https://embrapii.org.br',
+        'SEBRAE': 'https://sebrae.com.br', 'Minc': 'https://rouanet.cultura.gov.br',
+        'ANCINE': 'https://fsa.ancine.gov.br', 'Prosas': 'https://prosas.com.br',
+        'FBB': 'https://www.fbb.org.br', 'Embrapa': 'https://www.embrapa.br',
+        'Fiocruz': 'https://portal.fiocruz.br', 'Petrobras': 'https://petrobras.com.br',
+        'Vale': 'https://vale.com', 'MS/Saúde': 'https://www.gov.br/saude',
+    }
+    return m.get(agencia, 'https://www.gov.br')
+
+EDITAIS_CURADOS = _carregar_curados()
 
 def _buscar_ddg(query, max_results=10):
     # Try DuckDuckGo via curl; if blocked, fall back to curated list
