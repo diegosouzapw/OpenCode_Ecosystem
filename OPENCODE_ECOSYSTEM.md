@@ -20,12 +20,69 @@ author: "Reversa Framework v1.2.22 + Nexus PhD Strategist"
 
 # OpenCode Ecosystem v4.2.0
 
-O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao OpenCode (OpenAI Codex CLI), composta por **118 agentes**, **17 servidores MCP**, **74 skills especializadas**, **11 serviços em Container DI** e aproximadamente **109.660 linhas de código Python**. O ecossistema operacionaliza produção acadêmica Qualis A1, pesquisa científica autônoma, documentação jurídica, análise de dados quânticos e engenharia reversa de sistemas legados — tudo orquestrado por um Container central de Injeção de Dependência.
+O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao OpenCode (OpenAI Codex CLI), composta por **125 agentes**, **40 servidores MCP**, **104 skills especializadas** (12 categorias), **11 serviços em Container DI** e aproximadamente **114.000 linhas de código Python**. O ecossistema operacionaliza produção acadêmica Qualis A1, pesquisa científica autônoma, simulação MiroFish/BettaFish com 38 raciocínios + Teoria dos Jogos, computação quântica (81 arqs, 89.52% acc) e engenharia reversa de sistemas legados — tudo orquestrado por um Container central de Injeção de Dependência.
 
-> Repositório configurado em: `C:\Users\marce\.config\opencode`
-> Modelo base: `opencode/big-pickle` (OpenCode Zen, 200K ctx, 128K out)
+> Repositório: `C:\Users\marce\.config\opencode` · Modelo: `opencode/big-pickle` (200K ctx, 128K out)
 
 ---
+
+## Diagramas Técnicos — 7 SVGs (v4.2)
+
+O ecossistema documenta sua arquitetura por meio de **7 diagramas SVG** em `diagrams/`, gerados e mantidos pelo Reversa Framework v1.2.22. SVGs são preferidos sobre PNG/Mermaid por oferecerem escalabilidade vetorial infinita, gradientes, glassmorphism e atualização programática via texto puro.
+
+| # | Arquivo | Propósito | Processos-chave |
+|---|---------|-----------|------------------|
+| 1 | `architecture-overview.svg` | Mapa mestre 6 camadas | L1-Infra → L6-Orquestração · 125 ag · 40 MCPs · 104 skills |
+| 2 | `agent-orchestration.svg` | Hierarquia multiagente | ReAct loop · AutoEvolve PLAN→EVOLVE · MiroFish P14-P18 |
+| 3 | `academic-pipeline.svg` | MASWOS v4.2 | 8 estágios · 49 agentes · loopback score ≥ 95/100 |
+| 4 | `mcp-architecture.svg` | Protocolo MCP | 40 servidores · Client-Host-Server · lazy init |
+| 5 | `rag-strategies.svg` | 9 estratégias RAG | Vanilla→HyDE · Adaptive auto-select · Graph+Vector |
+| 6 | `self-healing.svg` | Autocura autônoma | Monitor→Detectar→Diagnosticar→Reparar→Verificar |
+| 7 | `mirofish-phd-auditor.svg` | **NOVO** Pipeline P14-P18 | 38 raciocínios · Nash · Cohen · Bonferroni · Qualis A1 |
+
+### SVG 7 em Detalhe — `mirofish-phd-auditor.svg`
+
+<img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%" style="max-width: 900px; border-radius: 8px; margin: 16px 0;"/>
+
+Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complexo do ecossistema:
+
+**Pipeline P14 → P18:**
+- **P14 Agent Forum (OASIS):** 125 agentes debatem com 38 tipos de raciocínio estruturado em 8 perfis de debate. O OASIS modera automaticamente os turnos e grava o grafo de argumentos.
+- **P15 DocIR:** Recuperação de 50 métricas reais (PIB, PISA, AI Readiness, saneamento, etc.) de World Bank, WHO, FAO, UNESCO, IBGE com correlações Pearson (ex: Internet×AI Readiness r=0.998).
+- **P16 ANP:** Analytic Network Process — ponderação multi-critério dos argumentos do debate para priorizar teses com maior sustentação estatística.
+- **P17 Meta-Writer:** Síntese do debate em formato LaTeX/IMRAD com TSAC anti-AI (87 palavras banidas, 46 anotações auditáveis).
+- **P18 PhD Auditor:** NashSolver (equilíbrio Nash N×M) + StatisticalRigor (Cohen's κ, Bonferroni, Power Analysis 1-β) + QualisA1Auditor (score 0-100, 7 critérios) + SensitivityAnalyzer + IMRADFormatter.
+
+**38 Tipos de Raciocínio (6 categorias):**
+
+| Categoria | Qt. | Exemplos |
+|-----------|:---:|---------|
+| Lógico | 5 | Dedutivo, Indutivo, Abdutivo, Analógico, Hipotético-Dedutivo |
+| Dialético | 5 | Socrático, Hegeliano, Tese-Antítese, Crítica, Refutação |
+| Teoria dos Jogos | 10 | Nash, Minimax, Dominância, Stackelberg, Pareto, Bayesiano, Evolutivo, Cooperativo, Assimétrico, Sinalização |
+| Decisão | 5 | Multi-critério, Bayesiano, Árvore, Fuzzy, Heurístico |
+| Estratégico | 5 | SWOT, Cenário, Roadmap, Competitivo, Blue Ocean |
+| Inovação | 8 | TRIZ, Design Thinking, Lateral, Biomimética, Disruptivo, Frugal, Combinatorial, Ágil |
+
+### Vantagens do OpenCode sobre Similares
+
+| Capacidade | OpenCode v4.2 | LangChain | AutoGen | CrewAI | Cursor |
+|-----------|--------------|-----------|---------|--------|--------|
+| Agentes especializados | **125** | Config. | Config. | ~20 | — |
+| Pipeline Qualis A1 (8 estágios) | **✅** | ❌ | ❌ | ❌ | ❌ |
+| PhD Auditor (Nash+Bonferroni) | **✅** | ❌ | ❌ | ❌ | ❌ |
+| RAG 9 estratégias auto-select | **✅** | Manual | Manual | Manual | ❌ |
+| Self-Healing MCP autônomo | **✅** | ❌ | ❌ | ❌ | ❌ |
+| AutoEvolve (gera skills) | **✅** | ❌ | ❌ | ❌ | ❌ |
+| Quantum 50 qubits (89.52%) | **✅** | ❌ | ❌ | ❌ | ❌ |
+| 40 MCP Servers nativos | **✅** | Plugin | ❌ | ❌ | Limitado |
+| CJK zero-tolerance PT-BR | **✅** | ❌ | ❌ | ❌ | ❌ |
+| Modelo gratuito 200K ctx | **✅ big-pickle** | API paga | API paga | API paga | Assinatura |
+
+> **Vantagem-chave:** Único framework que une produção Qualis A1 + debate multiagente com Teoria dos Jogos + validação estatística + quantum computing + autocura autônoma, com modelo gratuito de 200K contexto e arquitetura que aprende a cada ciclo evolutivo.
+
+---
+
 
 ## Arquitetura do Ecossistema
 
