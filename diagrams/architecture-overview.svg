@@ -46,7 +46,7 @@
   <!-- Title -->
   <rect x="0" y="0" width="1200" height="56" fill="url(#hdr)" rx="8"/>
   <rect x="0" y="40" width="1200" height="16" fill="url(#hdr)"/>
-  <text x="600" y="36" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Arquitetura do OpenCode Ecosystem v4.0.0 — 6 Camadas</text>
+  <text x="600" y="36" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Arquitetura do OpenCode Ecosystem v4.2 — 6 Camadas + MiroFish/BettaFish</text>
 
   <!-- Layer 6 - Orchestration -->
   <rect x="30" y="70" width="1140" height="110" rx="6" fill="url(#l6)" opacity="0.15" filter="url(#shadow)"/>
@@ -82,11 +82,11 @@
   <rect x="30" y="210" width="1140" height="110" rx="6" fill="url(#l5)" opacity="0.15" filter="url(#shadow)"/>
   <rect x="30" y="210" width="1140" height="110" rx="6" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="6,3"/>
   <rect x="30" y="210" width="160" height="110" rx="6" fill="url(#l5)" opacity="0.25"/>
-  <text x="50" y="240" fill="#58a6ff" font-size="11" font-weight="bold">L5 — AGENTES (118)</text>
+  <text x="50" y="240" fill="#58a6ff" font-size="11" font-weight="bold">L5 — AGENTES (125)</text>
   <text x="50" y="258" fill="#8b949e" font-size="9">Execução especializada</text>
-  <text x="50" y="274" fill="#8b949e" font-size="9">Core: 56 agentes</text>
-  <text x="50" y="290" fill="#8b949e" font-size="9">Criação: 49 agentes</text>
-  <text x="50" y="306" fill="#8b949e" font-size="9">SEEKER: 12 agentes</text>
+  <text x="50" y="274" fill="#8b949e" font-size="9">Core: 56 | Criação: 49</text>
+  <text x="50" y="290" fill="#8b949e" font-size="9">SEEKER: 12 | Reversa: 7</text>
+  <text x="50" y="306" fill="#8b949e" font-size="9">Corretor: 1</text>
 
   <rect x="210" y="222" width="135" height="40" rx="6" fill="#1f6feb" opacity="0.8"/>
   <text x="277" y="240" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Orquestradores</text>
@@ -109,8 +109,8 @@
   <text x="877" y="254" text-anchor="middle" fill="#8b949e" font-size="8">49 agentes</text>
 
   <rect x="960" y="222" width="135" height="40" rx="6" fill="#1f6feb" opacity="0.8"/>
-  <text x="1027" y="240" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">SEEKER</text>
-  <text x="1027" y="254" text-anchor="middle" fill="#8b949e" font-size="8">12 agentes</text>
+  <text x="1027" y="240" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">SEEKER + Reversa</text>
+  <text x="1027" y="254" text-anchor="middle" fill="#8b949e" font-size="8">12 + 7 agentes</text>
 
   <rect x="210" y="270" width="885" height="38" rx="6" fill="#1f6feb" opacity="0.4"/>
   <text x="652" y="290" text-anchor="middle" fill="#c9d1d9" font-size="10">Comunicação via MCP (JSON-RPC) · Subagents OpenCode · Contexto 200K</text>
@@ -123,9 +123,9 @@
   <rect x="30" y="350" width="1140" height="110" rx="6" fill="url(#l4)" opacity="0.15" filter="url(#shadow)"/>
   <rect x="30" y="350" width="1140" height="110" rx="6" fill="none" stroke="#d29922" stroke-width="1.5" stroke-dasharray="6,3"/>
   <rect x="30" y="350" width="160" height="110" rx="6" fill="url(#l4)" opacity="0.25"/>
-  <text x="50" y="380" fill="#d29922" font-size="11" font-weight="bold">L4 — MCP SERVERS (38)</text>
+  <text x="50" y="380" fill="#d29922" font-size="11" font-weight="bold">L4 — MCP SERVERS (40)</text>
   <text x="50" y="398" fill="#8b949e" font-size="9">Protocolo de comunicação</text>
-  <text x="50" y="414" fill="#8b949e" font-size="9">36 Local + 2 Remote</text>
+  <text x="50" y="414" fill="#8b949e" font-size="9">38 Local + 2 Remote</text>
   <text x="50" y="430" fill="#8b949e" font-size="9">JSON-RPC + stdio</text>
   <text x="50" y="446" fill="#8b949e" font-size="9">Lazy init</text>
 
@@ -160,11 +160,11 @@
   <rect x="30" y="490" width="1140" height="110" rx="6" fill="url(#l3)" opacity="0.15" filter="url(#shadow)"/>
   <rect x="30" y="490" width="1140" height="110" rx="6" fill="none" stroke="#e3b341" stroke-width="1.5" stroke-dasharray="6,3"/>
   <rect x="30" y="490" width="160" height="110" rx="6" fill="url(#l3)" opacity="0.25"/>
-  <text x="50" y="520" fill="#e3b341" font-size="11" font-weight="bold">L3 — SKILLS (45)</text>
-  <text x="50" y="538" fill="#8b949e" font-size="9">Diretrizes de domínio</text>
-  <text x="50" y="554" fill="#8b949e" font-size="9">43 OK ≤ 2.5KB</text>
-  <text x="50" y="570" fill="#8b949e" font-size="9">1 Borderline</text>
-  <text x="50" y="586" fill="#8b949e" font-size="9">1 Oversize (nexus)</text>
+  <text x="50" y="520" fill="#e3b341" font-size="11" font-weight="bold">L3 — SKILLS (104)</text>
+  <text x="50" y="538" fill="#8b949e" font-size="9">12 categorias</text>
+  <text x="50" y="554" fill="#8b949e" font-size="9">P14-P18 MiroFish</text>
+  <text x="50" y="570" fill="#8b949e" font-size="9">BettaFish integrado</text>
+  <text x="50" y="586" fill="#8b949e" font-size="9">38 tipos raciocínio</text>
 
   <rect x="210" y="502" width="130" height="40" rx="6" fill="#bc8c00" opacity="0.8"/>
   <text x="275" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Sistema (6)</text>
@@ -179,12 +179,12 @@
   <text x="565" y="534" text-anchor="middle" fill="#8b949e" font-size="8">Editais, ABNT...</text>
 
   <rect x="645" y="502" width="130" height="40" rx="6" fill="#bc8c00" opacity="0.8"/>
-  <text x="710" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Tooling (18)</text>
+  <text x="710" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">MiroFish (11)</text>
   <text x="710" y="534" text-anchor="middle" fill="#8b949e" font-size="8">MCP, Agentes...</text>
 
   <rect x="790" y="502" width="130" height="40" rx="6" fill="#bc8c00" opacity="0.8"/>
-  <text x="855" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Superpowers (10)</text>
-  <text x="855" y="534" text-anchor="middle" fill="#8b949e" font-size="8">TDD, Writing...</text>
+  <text x="855" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">PhD Auditor</text>
+  <text x="855" y="534" text-anchor="middle" fill="#8b949e" font-size="8">Nash+Qualis+IMRAD</text>
 
   <rect x="935" y="502" width="130" height="40" rx="6" fill="#bc8c00" opacity="0.8"/>
   <text x="1000" y="520" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">General (5)</text>
@@ -207,7 +207,7 @@
   <text x="50" y="710" fill="#8b949e" font-size="9">427+ scripts .py</text>
 
   <rect x="210" y="642" width="175" height="44" rx="6" fill="#8b2f97" opacity="0.8"/>
-  <text x="297" y="662" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Quantum (40 arqs)</text>
+  <text x="297" y="662" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Quantum (81 arqs)</text>
   <text x="297" y="677" text-anchor="middle" fill="#8b949e" font-size="8">QML·MPS·Grad-CAM·ZNE</text>
 
   <rect x="405" y="642" width="175" height="44" rx="6" fill="#8b2f97" opacity="0.8"/>
@@ -250,10 +250,10 @@
 
   <!-- Stats bar at very bottom -->
   <rect x="30" y="868" width="1140" height="24" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="80" y="884" fill="#8b949e" font-size="9">118 Agentes</text>
-  <text x="280" y="884" fill="#8b949e" font-size="9">38 MCPs</text>
-  <text x="450" y="884" fill="#8b949e" font-size="9">45 Skills</text>
-  <text x="620" y="884" fill="#8b949e" font-size="9">~109.180 linhas Python</text>
-  <text x="860" y="884" fill="#8b949e" font-size="9">~427+ scripts</text>
-  <text x="1040" y="884" fill="#8b949e" font-size="9">200K ctx</text>
+  <text x="80" y="884" fill="#8b949e" font-size="9">125 Agentes</text>
+  <text x="260" y="884" fill="#8b949e" font-size="9">40 MCPs</text>
+  <text x="420" y="884" fill="#8b949e" font-size="9">104 Skills</text>
+  <text x="580" y="884" fill="#8b949e" font-size="9">38 Tipos Raciocínio</text>
+  <text x="790" y="884" fill="#8b949e" font-size="9">81 arqs Quantum</text>
+  <text x="990" y="884" fill="#8b949e" font-size="9">v4.2 · 200K ctx</text>
 </svg>

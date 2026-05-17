@@ -37,8 +37,8 @@
 
   <rect width="800" height="650" fill="url(#bg)" rx="8"/>
 
-  <text x="400" y="36" text-anchor="middle" fill="#3fb950" font-size="16" font-weight="bold">Ciclo de Autocura (Self-Healing Loop)</text>
-  <text x="400" y="54" text-anchor="middle" fill="#8b949e" font-size="10">MCP self-healer · Monitoramento · Diagnóstico · Reparo Automático</text>
+  <text x="400" y="36" text-anchor="middle" fill="#3fb950" font-size="16" font-weight="bold">Ciclo de Autocura (Self-Healing Loop) v4.2</text>
+  <text x="400" y="54" text-anchor="middle" fill="#8b949e" font-size="10">MCP self-healer · Monitoramento · Diagnóstico · Reparo Automático · CJK Zero-Tolerance</text>
 
   <!-- Center: Health Monitor -->
   <circle cx="400" cy="330" r="60" fill="url(#g1)" opacity="0.15" stroke="#3fb950" stroke-width="2"/>
@@ -85,13 +85,13 @@
 
   <!-- Metric boxes -->
   <rect x="30" y="170" width="180" height="80" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="50" y="192" fill="#8b949e" font-size="9" font-weight="bold">Métricas Monitoradas</text>
+  <text x="50" y="192" fill="#8b949e" font-size="9" font-weight="bold">Métricas v4.2</text>
   <text x="50" y="210" fill="#3fb950" font-size="10">✅</text>
-  <text x="70" y="210" fill="#c9d1d9" font-size="9">Skills ≤ 2.5KB: 43/45</text>
+  <text x="70" y="210" fill="#c9d1d9" font-size="9">Skills 104 · 12 categorias</text>
   <text x="50" y="226" fill="#d29922" font-size="10">⚠️</text>
-  <text x="70" y="226" fill="#c9d1d9" font-size="9">MCPs ativos: 38/38</text>
-  <text x="50" y="242" fill="#f85149" font-size="10">🔴</text>
-  <text x="70" y="242" fill="#c9d1d9" font-size="9">Oversize: 1 (nexus)</text>
+  <text x="70" y="226" fill="#c9d1d9" font-size="9">MCPs ativos: 40/40</text>
+  <text x="50" y="242" fill="#3fb950" font-size="10">✅</text>
+  <text x="70" y="242" fill="#c9d1d9" font-size="9">CJK leaks: 0 (corrector)</text>
 
   <rect x="30" y="380" width="180" height="80" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
   <text x="50" y="402" fill="#8b949e" font-size="9" font-weight="bold">Ações de Reparo</text>

@@ -93,6 +93,8 @@ O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao O
 
 O ecossistema agora integra componentes adaptados do **MiroFish** (61K ⭐, swarm intelligence engine), **BettaFish** (40.9K ⭐, multi-agent analysis) e **nexus-phd-strategist** (Qualis A1), formando um pipeline completo de simulação multiagente com rigor acadêmico:
 
+<img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%" style="max-width: 900px; border-radius: 8px; margin: 16px 0;"/>
+
 | Componente | Origem | Classe/Engine | Status |
 |-----------|--------|--------------|--------|
 | **OASIS Profile Gen** | MiroFish OASIS | `generate_heuristic_profile()` + `validate_profiles_with_rigor()` | ✅ |
@@ -625,7 +627,7 @@ Sistema de memória técnica integrado ao ecossistema para registrar, buscar sem
 
 ---
 
-## Agentes (118 total)
+## Agentes (125 total)
 
 ### Core (56 agentes)
 

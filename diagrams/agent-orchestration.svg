@@ -37,8 +37,8 @@
 
   <rect width="1100" height="720" fill="url(#bg)" rx="8"/>
 
-  <text x="550" y="36" text-anchor="middle" fill="#58a6ff" font-size="18" font-weight="bold">Orquestração de Agentes — Architecture Patterns</text>
-  <text x="550" y="56" text-anchor="middle" fill="#8b949e" font-size="11">Hierarchical Multi-Agent Framework · MCP Orchestration · ReAct Loop</text>
+  <text x="550" y="36" text-anchor="middle" fill="#58a6ff" font-size="18" font-weight="bold">Orquestração de Agentes v4.2 — 125 Agentes · 38 Raciocínios</text>
+  <text x="550" y="56" text-anchor="middle" fill="#8b949e" font-size="11">Hierarchical Multi-Agent · MCP (40 servidores) · ReAct Loop · MiroFish/BettaFish</text>
 
   <!-- Orchestrator -->
   <rect x="380" y="80" width="340" height="60" rx="12" fill="url(#orq)" opacity="0.9" filter="url(#shadow)"/>
@@ -73,7 +73,7 @@
 
   <!-- MCP Layer -->
   <rect x="50" y="312" width="1000" height="44" rx="8" fill="#9e6a03" opacity="0.15" stroke="#d29922" stroke-width="1" stroke-dasharray="5,3"/>
-  <text x="550" y="340" text-anchor="middle" fill="#d29922" font-size="11" font-weight="bold">MCP Layer — 38 Servidores (JSON-RPC sobre stdio)</text>
+  <text x="550" y="340" text-anchor="middle" fill="#d29922" font-size="11" font-weight="bold">MCP Layer — 40 Servidores · 38 Local + 2 Remoto (JSON-RPC sobre stdio)</text>
 
   <!-- Tool boxes -->
   <rect x="70" y="370" width="140" height="44" rx="6" fill="url(#tool)" opacity="0.6"/>
@@ -129,7 +129,7 @@
 
   <!-- Evolution pipeline -->
   <rect x="50" y="600" width="1000" height="100" rx="8" fill="#8b2f97" opacity="0.06" stroke="#bc8cff" stroke-width="1"/>
-  <text x="70" y="622" fill="#bc8cff" font-size="11" font-weight="bold">Pipeline AutoEvolve (Manus Evolve)</text>
+  <text x="70" y="622" fill="#bc8cff" font-size="11" font-weight="bold">Pipeline AutoEvolve (Manus Evolve) + MiroFish/BettaFish P14-P18</text>
 
   <rect x="70" y="636" width="120" height="36" rx="6" fill="url(#pipe)" opacity="0.7"/>
   <text x="130" y="655" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">PLAN</text>
@@ -159,5 +159,5 @@
   <text x="930" y="654" text-anchor="middle" fill="#bc8cff" font-size="9">→ evolution/</text>
   <text x="930" y="666" text-anchor="middle" fill="#8b949e" font-size="7">Nova skill gerada</text>
 
-  <text x="550" y="708" text-anchor="middle" fill="#484f58" font-size="9">Referências: AgentOrchestra (arXiv:2506.12508, 2025) · Gradientsys (arXiv:2507.06520, 2025) · FoA (arXiv:2509.20175, 2025) · HAWK (arXiv:2507.04067, 2025)</text>
+  <text x="550" y="708" text-anchor="middle" fill="#484f58" font-size="9">v4.2 · AgentOrchestra (arXiv:2506.12508) · Gradientsys (arXiv:2507.06520) · FoA (arXiv:2509.20175) · MiroFish/BettaFish: OASIS+Forum+Config+Graph</text>
 </svg>

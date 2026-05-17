@@ -71,12 +71,12 @@ O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do ru
 | Camada | Nome | Componentes Principais | Tecnologia |
 |:------:|------|----------------------|------------|
 | **L6** | Orquestração | Nexus NMA v6.2, Reversa v1.2.22, Evo Loop | Python, JSON-RPC |
-| **L5** | Agentes | 118 agentes em 4 categorias | OpenCode Subagents |
-| **L4** | MCP | 17 servidores (15 local, 2 remote) | MCP SDK, stdio/HTTP |
-| **L3** | Skills | 74 SKILL.md com progressive disclosure | YAML, Markdown |
-| **L2** | Dados | SQLite, Mem0, Quantum, DOCLing | Ollama, SQLite |
+| **L5** | Agentes | **125 agentes** (core 56 + criação 49 + SEEKER 12 + Reversa 7 + corretor 1) | OpenCode Subagents |
+| **L4** | MCP | **40 servidores** (38 local + 2 remote) | MCP SDK, stdio/HTTP |
+| **L3** | Skills | **104 skills** · 12 categorias · P14-P18 MiroFish/BettaFish | YAML, Markdown |
+| **L2** | Dados | SQLite, Mem0, Quantum (81 arqs), DOCLing | Ollama, SQLite |
 | **L1** | Infra | Node.js 25, Bun 1.3, Python 3.12 | Win32 |
-| **DI** | Container | 8 serviços core + 3 plugins TS registrados, bridge CommandRegistry | Container, from_container() |
+| **DI** | Container | 11 serviços + 3 plugins TS + bridge CommandRegistry | Container, from_container() |
 
 ---
 
@@ -84,17 +84,19 @@ O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do ru
 
 ## Simulação MiroFish/BettaFish + PhD Auditor
 
+<img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%"/>
+
 O ecossistema integra pipeline completo de simulação multiagente adaptado do **MiroFish** (61K ⭐, swarm intelligence) e **BettaFish** (40.9K ⭐, análise multiagente), com rigor acadêmico do **nexus-phd-strategist**:
 
 ### Pipeline P14-P18
 
 | Fase | Componente | Origem | O que faz |
 |------|-----------|--------|-----------|
-| P14 | Agent Forum | BettaFish ForumEngine | Debate multiagente com moderador LLM |
-| P15 | Document IR | BettaFish ReportEngine | Report pipeline com IR intermediário |
-| P16 | ANP (Agent Node Pipeline) | BettaFish QueryEngine | Pipeline de nós com DAG paralelo |
-| P17 | MiddlewareChain | DeerFlow 11-layer | Cadeia de 9 middlewares (Stats↔Checkpoint) |
-| P18 | PhD Auditor | nexus-phd-strategist | NashSolver + StatisticalRigor + QualisA1Auditor |
+| P14 | Agent Forum | BettaFish ForumEngine | Debate multiagente · 38 raciocínios · OASIS |
+| P15 | DocIR | BettaFish ReportEngine | 50 métricas World Bank/WHO/FAO/UNESCO |
+| P16 | ANP | BettaFish QueryEngine | Ponderação ANP multi-critério · Qualis score |
+| P17 | Meta-Writer | DeerFlow/IMRAD | Síntese → LaTeX · TSAC anti-AI · 87 banidas |
+| P18 | PhD Auditor | nexus-phd-strategist | NashSolver · Cohen · Bonferroni · QualisA1Auditor |
 
 ### 38 Tipos de Raciocínio + 10 Estratégias de Teoria dos Jogos
 
@@ -410,10 +412,10 @@ Scout → Archaeologist → Detective → Architect → Writer → Reviewer
 
 <div align="center">
 
-**OpenCode Ecosystem v4.1.0**
+**OpenCode Ecosystem v4.2.0**
 
-118 agentes · 17 MCPs · 74 skills · Container DI · ~109.660 linhas Python
+125 agentes · 40 MCPs · 104 skills · 38 raciocínios · MiroFish/BettaFish · PhD Auditor · 81 arqs Quantum
 
-*Documentação gerada pelo Reversa Framework v1.2.22 — 2026-05-16*
+*Documentação atualizada automaticamente — 2026-05-17 · BRAZIL_TIMEZONE UTC-3*
 
 </div>
