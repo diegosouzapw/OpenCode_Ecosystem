@@ -1,15 +1,19 @@
 ﻿"""
-core/plugin_manager.py — Gerenciamento de Plugins.
+core/plugin_manager.py — Gerenciamento de Plugins com DI.
 
 Descoberta, carregamento, registro e ciclo de vida de plugins.
 Suporta plugins Python (.py) instalados via pip ou locais.
 
-Uso:
-    mgr = PluginManager()
+Uso com DI (novo):
+    container = Container.instance()
+    mgr = PluginManager(container=container)
     mgr.discover(["plugins/"])
     mgr.load_all()
     plugin = mgr.get_plugin("meu-plugin")
-    result = await plugin.execute_hook("on_start", {})
+
+Uso legado (compatível):
+    mgr = PluginManager()
+    mgr.discover(["plugins/"])
 """
 
 from __future__ import annotations
@@ -59,6 +63,7 @@ class PluginMeta:
     version: str = "1.0.0"
     description: str = ""
     author: str = ""
+    plugin_type: str = "python"  # "python" | "typescript"
     hooks: list[str] = field(default_factory=list)
     dependencies: list[str] = field(default_factory=list)
 
@@ -77,16 +82,22 @@ class PluginInstance:
 
 
 class PluginManager:
-    """Gerenciador de plugins com descoberta automática.
+    """Gerenciador de plugins com descoberta automática e suporte a DI.
 
     Args:
         auto_enable: Se True, plugins são ativados automaticamente após load.
+        container: Container DI opcional para resolução de dependências.
     """
 
-    def __init__(self, auto_enable: bool = True) -> None:
+    def __init__(self, auto_enable: bool = True, container: Any = None) -> None:
         self._plugins: dict[str, PluginInstance] = {}
         self._search_dirs: list[Path] = []
         self._auto_enable = auto_enable
+        self._container = container
+
+        # Auto-registro no Container DI
+        if container is not None and not container.is_registered('plugin_manager'):
+            container.register('plugin_manager', self)
 
     # ── Descoberta ─────────────────────────────────────────────────
 
@@ -175,8 +186,9 @@ class PluginManager:
             if self._auto_enable and plugin.instance:
                 import asyncio
                 try:
+                    load_config = {"container": self._container} if self._container else {}
                     loop = asyncio.get_running_loop()
-                    loop.create_task(plugin.instance.on_load({}))
+                    loop.create_task(plugin.instance.on_load(load_config))
                 except RuntimeError:
                     pass
 
@@ -246,5 +258,147 @@ class PluginManager:
     def loaded_count(self) -> int:
         return sum(1 for p in self._plugins.values() if p.module is not None)
 
+    # ── Descobrimento de Plugins TypeScript ────────────────────────
+
+    def discover_ts_plugins(self, directories: Optional[list[str | Path]] = None) -> list[str]:
+        """Descobre plugins TypeScript (.ts) para metadados.
+
+        Args:
+            directories: Lista de diretórios para buscar arquivos .ts.
+
+        Returns:
+            Lista de nomes de plugins TypeScript encontrados.
+        """
+        ts_dirs = directories or []
+        if self._container:
+            try:
+                from core.config import settings
+                ts_dirs.append(settings.ECO_ROOT / "plugins")
+            except Exception:
+                ts_dirs.append(Path.cwd() / "plugins")
+
+        found: list[str] = []
+        for ts_dir in ts_dirs:
+            search_path = Path(ts_dir)
+            if not search_path.exists():
+                continue
+            for path in search_path.glob("*.ts"):
+                if path.stem.startswith("_"):
+                    continue
+                if path.stem not in self._plugins:
+                    self._plugins[path.stem] = PluginInstance(
+                        meta=PluginMeta(
+                            name=path.stem,
+                            description=f"TypeScript plugin from {path.name}",
+                            plugin_type="typescript",
+                        )
+                    )
+                    found.append(path.stem)
+
+        if found:
+            logger.info("Discovered %d TypeScript plugins: %s", len(found), found)
+        return found
+
+    def list_ts_plugins(self) -> list[PluginInstance]:
+        """Lista apenas plugins TypeScript."""
+        return [p for p in self._plugins.values() if p.meta.plugin_type == "typescript"]
+
+    # ── Registro no Container DI ──────────────────────────────────
+
+    def register_in_container(self, name: str) -> bool:
+        """Registra um plugin específico no Container DI.
+
+        O plugin fica acessível como 'plugin.<nome>' no Container.
+        Exemplo: container.resolve('plugin.manus-evolve')
+
+        Args:
+            name: Nome do plugin.
+
+        Returns:
+            True se registrado com sucesso.
+        """
+        if self._container is None:
+            logger.warning("No container to register plugin '%s'", name)
+            return False
+
+        plugin = self._plugins.get(name)
+        if plugin is None:
+            logger.warning("Plugin '%s' not found for container registration", name)
+            return False
+
+        container_key = f"plugin.{name}"
+        if not self._container.is_registered(container_key):
+            self._container.register(container_key, plugin)
+            logger.debug("Registered plugin '%s' as '%s'", name, container_key)
+        return True
+
+    def register_all_in_container(self) -> int:
+        """Registra todos os plugins descobertos no Container DI.
+
+        Returns:
+            Número de plugins registrados.
+        """
+        count = 0
+        for name in list(self._plugins.keys()):
+            if self.register_in_container(name):
+                count += 1
+        logger.info("Registered %d plugins in container", count)
+        return count
+
+    def get_plugin_status(self, name: str) -> Optional[dict]:
+        """Retorna status detalhado de um plugin.
+
+        Args:
+            name: Nome do plugin.
+
+        Returns:
+            Dict com status ou None se não encontrado.
+        """
+        plugin = self._plugins.get(name)
+        if plugin is None:
+            return None
+
+        return {
+            "name": plugin.meta.name,
+            "version": plugin.meta.version,
+            "type": plugin.meta.plugin_type,
+            "enabled": plugin.enabled,
+            "loaded": plugin.module is not None,
+            "loaded_at": plugin.loaded_at,
+            "description": plugin.meta.description,
+            "hooks": plugin.meta.hooks,
+            "dependencies": plugin.meta.dependencies,
+            "in_container": self._container.is_registered(f"plugin.{name}") if self._container else False,
+        }
+
+    def health_summary(self) -> dict:
+        """Resumo de saúde de todos os plugins.
+
+        Returns:
+            Dict com contagens e status agregado.
+        """
+        plugins = list(self._plugins.values())
+        total = len(plugins)
+        enabled = sum(1 for p in plugins if p.enabled)
+        loaded = sum(1 for p in plugins if p.module is not None)
+        ts_count = sum(1 for p in plugins if p.meta.plugin_type == "typescript")
+        py_count = sum(1 for p in plugins if p.meta.plugin_type == "python")
+        registered = sum(
+            1 for p in plugins
+            if self._container and self._container.is_registered(f"plugin.{p.meta.name}")
+        )
+
+        return {
+            "total": total,
+            "enabled": enabled,
+            "loaded": loaded,
+            "typescript": ts_count,
+            "python": py_count,
+            "registered_in_container": registered,
+            "plugins": [self.get_plugin_status(p.meta.name) for p in plugins],
+        }
+
     def __repr__(self) -> str:
-        return f"PluginManager(plugins={self.count}, loaded={self.loaded_count})"
+        py_count = sum(1 for p in self._plugins.values() if p.meta.plugin_type == "python")
+        ts_count = sum(1 for p in self._plugins.values() if p.meta.plugin_type == "typescript")
+        return f"PluginManager(python={py_count}, typescript={ts_count}, loaded={self.loaded_count})"

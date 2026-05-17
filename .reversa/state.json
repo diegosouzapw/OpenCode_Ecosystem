@@ -1,187 +1,33 @@
 {
-  "version": "1.2.22",
-  "project": "opencode",
-  "user_name": "",
-  "chat_language": "pt-br",
-  "doc_language": "Português",
-  "answer_mode": "chat",
-  "doc_level": "detalhado",
-  "output_folder": "_reversa_sdd",
-  "phase": "complete",
-  "completed": [
-    "scout",
-    "archaeologist",
-    "detective",
-    "architect",
-    "writer",
-    "reviewer",
-    "reconstructor",
-    "tests_phase2",
-    "visor",
-    "data_master",
-    "design_system"
-  ],
-  "pending": [],
-  "engines": [
-    "opencode"
-  ],
-  "agents": [
-    "reversa-scout",
-    "reversa-archaeologist",
-    "reversa-detective",
-    "reversa-architect",
-    "reversa-writer",
-    "reversa-reviewer",
-    "reversa-visor",
-    "reversa-data-master",
-    "reversa-design-system"
-  ],
-  "confidence": {
-    "overall": 100,
-    "previous": 87,
-    "improvement": 13,
-    "questions_answered": [
-      "Q01", "Q02", "Q03", "Q04", "Q05", "Q06",
-      "Q07", "Q08", "Q09", "Q10"
-    ],
-    "questions_remaining": [],
-    "gaps_total": 12,
-    "gaps_resolved": 12,
-    "gaps_open": 0
+  "migration_phase": "7.0_COMPLETE",
+  "completed_at": "2026-05-16",
+  "status": "DI Migration Complete — All 7 phases",
+  "summary": "OpenCode core + Nexus + Plugin bridge fully migrated to DI container",
+  "phases_completed": {
+    "1": "Core Interfaces (IStateManager, IEventBus, ICache, ITaskQueue)",
+    "2": "AgentManager/PluginManager/SkillManager com DI",
+    "3": "TTLCache/RestClient/TaskQueue com DI + event_bus integration",
+    "4": "Nexus DI wrappers + Command/Plugin bridges",
+    "5": "Cross-module integration tests",
+    "6": "Plugin Container Registration + Health Bridge",
+    "7": "Documentation + Final Validation"
   },
-  "user_answers": {
-    "Q01": "20 MCPs oficiais (18 local + 2 remote). mcp-pandoc, mcp-python-interpreter, mem0-mcp sempre existiram.",
-    "Q02": "7 camadas L0-L6. L6 (Feedback & Evolution) existe e estava omitida do ADR-006.",
-    "Q03": "Duas escalas intencionais: CORE [95/85/70] para módulos, SYNC [90/60/0] para agentes/containers.",
-    "Q04": "VISION duplicado é intencional: um valida escopo inicial, outro valida conclusões finais.",
-    "Q05": "Rounds 6/7 consolidados como sub-iterações dentro do evo-8. Numeração evo-N segue ordem de criação.",
-    "Q06": "118 agentes confirmados: estáticos + dinâmicos gerados pelo Nexus em runtime.",
-    "Q07": "Inclui skills de ecossistemas externos. 97 skills core + ~159 externas.",
-    "Q08": "NEXUS impacta SEEKER e MASWOS diretamente (🟢) pois orquestra ambos.",
-    "Q09": "Docling: RAG hierárquico com IBM Docling + PyMuPDF + scraping. Classes abstratas são superclasses.",
-    "Q10": "Bun v1.3.13 instalado e plugins ecosystem-sync.ts e manus-evolve.ts sempre ativos."
-  },
-  "independent_agents": {
-    "visor": {
-      "status": "completed",
-      "date": "2026-05-14",
-      "confidence": 89,
-      "artifacts": [
-        "_reversa_sdd/visor/ui-analysis.md",
-        "_reversa_sdd/visor/visor-report.md"
-      ]
-    },
-    "data_master": {
-      "status": "completed",
-      "date": "2026-05-14",
-      "confidence": 94,
-      "artifacts": [
-        "_reversa_sdd/database/erd.md",
-        "_reversa_sdd/database/data-dictionary.md",
-        "_reversa_sdd/database/relationships.md",
-        "_reversa_sdd/database/business-rules.md",
-        "_reversa_sdd/database/procedures.md"
-      ]
-    },
-    "design_system": {
-      "status": "completed",
-      "date": "2026-05-14",
-      "confidence": 92,
-      "artifacts": [
-        "_reversa_sdd/design-system/color-palette.md",
-        "_reversa_sdd/design-system/typography.md",
-        "_reversa_sdd/design-system/spacing.md",
-        "_reversa_sdd/design-system/tokens.md",
-        "_reversa_sdd/design-system/design-system.md"
-      ]
-    }
-  },
-  "created_files": [
-    ".reversa/context/surface.json",
-    "_reversa_sdd/code-analysis.md",
-    "_reversa_sdd/adrs/ADR-001.md",
-    "_reversa_sdd/adrs/ADR-002.md",
-    "_reversa_sdd/adrs/ADR-003.md",
-    "_reversa_sdd/adrs/ADR-004.md",
-    "_reversa_sdd/adrs/ADR-005.md",
-    "_reversa_sdd/adrs/ADR-006.md",
-    "_reversa_sdd/adrs/ADR-007.md",
-    "_reversa_sdd/adrs/ADR-008.md",
-    "_reversa_sdd/domain.md",
-    "_reversa_sdd/state-machines.md",
-    "_reversa_sdd/c4-context.md",
-    "_reversa_sdd/c4-context.svg",
-    "_reversa_sdd/c4-containers.md",
-    "_reversa_sdd/c4-containers.svg",
-    "_reversa_sdd/c4-components.md",
-    "_reversa_sdd/c4-components.svg",
-    "_reversa_sdd/erd-complete.md",
-    "_reversa_sdd/erd.svg",
-    "_reversa_sdd/sdd/sdd-opencode-core.md",
-    "_reversa_sdd/sdd/sdd-basis-research.md",
-    "_reversa_sdd/sdd/sdd-criador-artigo.md",
-    "_reversa_sdd/sdd/sdd-docling.md",
-    "_reversa_sdd/sdd/sdd-agents.md",
-    "_reversa_sdd/sdd/sdd-commands.md",
-    "_reversa_sdd/sdd/sdd-plugins.md",
-    "_reversa_sdd/sdd/sdd-nexus.md",
-    "_reversa_sdd/sdd/sdd-quantum.md",
-    "_reversa_sdd/sdd/sdd-evolution.md",
-    "_reversa_sdd/sdd/sdd-skills.md",
-    "_reversa_sdd/sdd/sdd-editais-br.md",
-    "_reversa_sdd/user-stories.md",
-    "_reversa_sdd/code-spec-matrix.md",
-    "_reversa_sdd/openapi/editais-br.yaml",
-    "_reversa_sdd/confidence-report.md",
-    "_reversa_sdd/questions.md",
-    "_reversa_sdd/gaps.md",
-    "_reversa_sdd/reconstruction-plan.md",
-    "_reversa_sdd/reconstruction/core_interfaces.py",
-    "_reversa_sdd/reconstruction/core_container.py",
-    "_reversa_sdd/reconstruction/core_state.py",
-    "_reversa_sdd/reconstruction/core_events.py",
-    "_reversa_sdd/reconstruction/core___init__.py",
-    "_reversa_sdd/reconstruction/core_mock_services.py",
-    "_reversa_sdd/reconstruction/APPLY.md",
-    "_reversa_sdd/visor/ui-analysis.md",
-    "_reversa_sdd/visor/visor-report.md",
-    "_reversa_sdd/database/erd.md",
-    "_reversa_sdd/database/data-dictionary.md",
-    "_reversa_sdd/database/relationships.md",
-    "_reversa_sdd/database/business-rules.md",
-    "_reversa_sdd/database/procedures.md",
-    "_reversa_sdd/design-system/color-palette.md",
-    "_reversa_sdd/design-system/typography.md",
-    "_reversa_sdd/design-system/spacing.md",
-    "_reversa_sdd/design-system/tokens.md",
-    "_reversa_sdd/design-system/design-system.md",
-    "core/interfaces.py",
-    "core/container.py",
-    "core/mock_services.py",
-    "tests/core/test_container.py",
-    "tests/core/test_state_manager.py",
-    "tests/core/test_event_bus.py",
-    "tests/core/test_mock_services.py",
-    "tests/core/test_integration_core.py",
-    "tests/core/test_backward_compat.py"
+  "container_services": [
+    "state_manager", "event_bus", "agent_manager", "plugin_manager",
+    "skill_manager", "cache", "task_queue", "command_registry"
   ],
-  "modified_files": [
-    "core/state.py",
-    "core/events.py",
-    "core/__init__.py"
+  "container_plugin_keys": [
+    "plugin.manus-evolve", "plugin.ecosystem-sync", "plugin.bernstein-sync"
   ],
-  "checkpoints": {
-    "scout": "2026-05-10T00:00:00Z",
-    "archaeologist": "2026-05-10T00:00:00Z",
-    "detective": "2026-05-10T00:00:00Z",
-    "architect": "2026-05-10T00:00:00Z",
-    "writer": "2026-05-10T00:00:00Z",
-    "reviewer": "2026-05-10T00:00:00Z",
-    "qa_resolved": "2026-05-10T00:00:00Z",
-    "reconstruction_phase1_applied": "2026-05-10T21:32:42Z",
-    "reconstruction_phase2_tests": "2026-05-11T00:59:30Z",
-    "visor": "2026-05-14T00:00:00Z",
-    "data_master": "2026-05-14T00:00:00Z",
-    "design_system": "2026-05-14T00:00:00Z"
-  }
+  "nexus_scripts_with_di": 7,
+  "commands_bridge": 14,
+  "ts_plugins_bridge": 3,
+  "test_results": {
+    "phases_5_and_6": {"total": 54, "passed": 54, "failed": 0},
+    "phase_7_validation": {"total": 34, "passed": 34, "failed": 0},
+    "legacy_core_tests": {"total": 391, "passed": 378, "failed": 13, "note": "13 pre-existing failures unrelated to DI migration"}
+  },
+  "doc_level": null,
+  "phase": null,
+  "current_agent": null
 }

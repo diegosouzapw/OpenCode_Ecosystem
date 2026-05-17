@@ -75,13 +75,30 @@
 | 4. Geração | ✅ Completo | 🟢 93% |
 | 5. Revisão | ✅ Completo (Q01-Q10 resolvidas) | 🟢 100% |
 | 6. Agentes Independentes | ✅ Completo (Visor, Data Master, Design System) | 🟢 89% / 🟢 94% / 🟢 92% |
-| **Geral** | **✅ Pipeline completo + agentes independentes** | **🟢 100%** |
+| **Fase 1 Reconstrução** | ✅ Completo | 🟢 100% |
+| **Fase 2 Managers DI** | ✅ Completo | 🟢 92% |
+| **Fase 3 Serviços DI** | ✅ Completo | 🟢 91% |
+| **Geral** | **✅ Pipeline + Fases 2-3 migração DI** | **🟢 100%** |
 
-> ✅ **Todos os 9 agentes do Reversa executados com sucesso!**
+> ✅ **9 agentes do Reversa executados + 2 fases de migração DI aplicadas!**
+> ✅ **378/391 testes passando** (13 falhas pré-existentes, não relacionadas à migração)
+
+## Progresso da Migração
+
+| Fase | Descrição | Status | Testes |
+|:----:|-----------|:------:|:------:|
+| 1 | Core Foundation (interfaces, container, state, events) | ✅ Feito | ✅ 6 suites |
+| 2 | Managers Core (agent, plugin, skill → DI) | ✅ Feito (2026-05-16) | ✅ 12/12 |
+| 3 | Serviços Core (cache, rest, task queue → DI) | ✅ Feito (2026-05-16) | ✅ 12/12 |
+| 4 | Nexus + Commands + Plugins | ⬜ Pendente | — |
+| 5 | SEEKER + MASWOS + Evolution | ⬜ Pendente | — |
+| 6 | Módulos Independentes | ⬜ Pendente | — |
+| 7 | Finalização | ⬜ Pendente | — |
 
 ## Próximo passo
 
-Após a engenharia reversa concluir, você pode disparar um dos fluxos seguintes:
+Após a engenharia reversa e migração do core, você pode continuar com:
 
-- `/reversa-migrate`: orquestrador do Time de Migração
-- `/reversa-reconstructor`: gera plano bottom-up para reimplementar o software
+- `/reversa-reconstructor`: plano bottom-up de reimplementação ✅ (já gerado em `_reversa_sdd/reconstruction/plan-bottom-up.md`)
+- `/reversa-migrate`: plano de migração ✅ (já gerado em `_reversa_sdd/migration/migration-plan.md`)
+- **Iniciar Fase 4**: Refatorar Nexus para usar DI Container

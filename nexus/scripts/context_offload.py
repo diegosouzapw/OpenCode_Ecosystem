@@ -1,34 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Context Offload Manager - FileSystem-based Context Management for Long Tasks
-Inspired by deer-flow context engineering architecture
-
-Features:
-- Context summarization for long sessions
-- FileSystem offload for intermediate results
-- Context compression for non-relevant data
-- Scoped context per sub-agent
-- Project-scoped memory persistence
+nexus/scripts/context_offload.py (refatorado) - DI via Container.
+Mantém API original inalterada para compatibilidade retroativa.
 """
 import json, os, time, hashlib, logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.container import Container
+
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ContextEntry:
     entry_id: str
     session_id: str
     content: str
-    content_type: str  # text, intermediate_result, summary, metadata
+    content_type: str
     timestamp: float
-    priority: int = 0  # 0-10, higher = more important
+    priority: int = 0
     is_compressed: bool = False
     original_size: int = 0
+
 
 @dataclass
 class SessionState:
@@ -41,17 +40,24 @@ class SessionState:
     summary: str = ""
     behavioral_fingerprint: dict = field(default_factory=dict)
 
+
 class ContextOffloadManager:
     def __init__(self, base_dir: str = None, max_context_size: int = 50000,
-                 summary_threshold: int = 10, compression_enabled: bool = True):
+                 summary_threshold: int = 10, compression_enabled: bool = True, container=None):
+        self._container = container
         self.base_dir = Path(base_dir or os.path.join(os.getcwd(), "nexus", "context_offload"))
         self.base_dir.mkdir(parents=True, exist_ok=True)
-        self.max_context_size = max_context_size  # bytes
-        self.summary_threshold = summary_threshold  # entries before summarization
+        self.max_context_size = max_context_size
+        self.summary_threshold = summary_threshold
         self.compression_enabled = compression_enabled
         self.sessions: dict[str, SessionState] = {}
         self.active_session: Optional[str] = None
         self._entry_index: dict[str, ContextEntry] = {}
+
+    @classmethod
+    def from_container(cls, container: 'Container', **kwargs) -> 'ContextOffloadManager':
+        """Factory: cria ContextOffloadManager com deps do Container."""
+        return cls(container=container, **kwargs)
 
     def create_session(self, session_id: str = None, project_id: str = None) -> str:
         sid = session_id or f"session-{int(time.time())}"
@@ -194,7 +200,7 @@ class ContextOffloadManager:
     def _session_dir(self, session_id: str) -> Path:
         return self.base_dir / session_id
 
-    def get_session_state(self, session_id: str = None) -> Optional[dict]:
+    def get_session_state(self, session_id: Optional[str] = None) -> Optional[dict]:
         sid = session_id or self.active_session
         if not sid or sid not in self.sessions:
             return None
@@ -204,4 +210,12 @@ class ContextOffloadManager:
             "summary_length": len(s.summary), "has_fingerprint": bool(s.behavioral_fingerprint)}
 
     def list_sessions(self) -> list[dict]:
-        return [self.get_session_state(sid) for sid in self.sessions if self.get_session_state(sid)]
+        return [self.get_session_state(sid) for sid in self.sessions if self.get_session_state(sid)]  # type: ignore[return-value]
+
+
+def register_context_offload_di() -> None:
+    """Registra ContextOffloadManager no Container (chamar apos initialize_core)."""
+    from core.container import Container
+    if not Container.instance().is_registered('context_offload'):
+        Container.instance().register('context_offload',
+            ContextOffloadManager.from_container(Container.instance()))

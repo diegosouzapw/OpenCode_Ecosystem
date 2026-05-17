@@ -1,14 +1,18 @@
 ﻿"""
-core/cache.py — Cache Layer com TTL, LRU Eviction e Estatísticas.
+core/cache.py — Cache Layer com TTL, LRU Eviction, Estatísticas e DI.
 
 Thread-safe. Suporta TTL por entrada, evicção LRU automática no limite
 de tamanho, e coleta de estatísticas (hits/misses/hit_ratio).
 
-Uso:
-    cache = TTLCache(maxsize=100, default_ttl=300)
+Uso com DI (novo):
+    container = Container.instance()
+    cache = TTLCache(container=container, maxsize=500, default_ttl=600)
+    cache.set("user:42", {"name": "Alice"})
+    print(cache.get("user:42"))
+
+Uso legado (compatível):
+    cache = TTLCache(maxsize=500, default_ttl=600)
     cache.set("chave", {"data": 42})
-    valor = cache.get("chave")          # -> {"data": 42}
-    cache.get("ausente", default=[])    # -> []
 """
 
 from __future__ import annotations
@@ -18,7 +22,7 @@ import threading
 import time
 from collections import OrderedDict
 from typing import Any, Optional
-
+from core.interfaces import ICache
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +48,13 @@ class CacheEntry:
         return time.monotonic() > self.expires_at
 
 
-class TTLCache:
-    """Cache thread-safe com TTL e evicção LRU.
+class TTLCache(ICache):
+    """Cache thread-safe com TTL e evicção LRU, com suporte a DI.
 
     Args:
         maxsize: Número máximo de entradas (0 = ilimitado).
         default_ttl: TTL padrão em segundos (None = sem expiração).
+        container: Container DI opcional.
 
     Example:
         cache = TTLCache(maxsize=1000, default_ttl=300)
@@ -62,6 +67,7 @@ class TTLCache:
         self,
         maxsize: int = 1000,
         default_ttl: Optional[float] = 300.0,
+        container: Any = None,
     ) -> None:
         if maxsize < 0:
             raise ValueError("maxsize must be >= 0")
@@ -71,6 +77,10 @@ class TTLCache:
         self._lock = threading.Lock()
         self._hits = 0
         self._misses = 0
+        self._container = container
+
+        if container is not None and not container.is_registered('cache'):
+            container.register('cache', self)
 
     # --- API Pública ---
 

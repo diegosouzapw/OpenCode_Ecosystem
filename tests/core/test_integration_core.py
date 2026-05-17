@@ -23,6 +23,14 @@ from core import (
     Container,
     IStateManager,
     IEventBus,
+    ICache,
+    ITaskQueue,
+    AgentManager,
+    PluginManager,
+    SkillManager,
+    TTLCache,
+    TaskQueue,
+    RestClient,
 )
 
 
@@ -40,8 +48,9 @@ class TestInitializeCore:
     def test_initialize_registers_services(self):
         initialize_core()
         container = Container.instance()
-        assert container.is_registered('state_manager')
-        assert container.is_registered('event_bus')
+        for name in ['state_manager', 'event_bus', 'agent_manager',
+                     'plugin_manager', 'skill_manager', 'cache', 'task_queue']:
+            assert container.is_registered(name), f"{name} not registered"
 
     def test_initialize_with_custom_db_path(self):
         with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
@@ -82,6 +91,17 @@ class TestResetForTesting:
         reset_for_testing()
         initialize_core()
         assert Container.instance().is_registered('state_manager')
+
+
+    def test_managers_registered_after_init(self):
+        """initialize_core() must register all three managers."""
+        initialize_core()
+        container = Container.instance()
+        for mgr_name in ['agent_manager', 'plugin_manager', 'skill_manager']:
+            assert container.is_registered(mgr_name), f"{mgr_name} not registered"
+            mgr = container.resolve(mgr_name)
+            assert mgr is not None
+            assert hasattr(mgr, 'discover') or hasattr(mgr, 'register_agent_type')
 
 
 # ─── Container Access ──────────────────────────────────────────────
@@ -128,6 +148,15 @@ class TestAll:
             'Container',
             'IStateManager',
             'IEventBus',
+            'ICache',
+            'ITaskQueue',
+            'AgentManager',
+            'PluginManager',
+            'SkillManager',
+            'TTLCache',
+            'TaskQueue',
+            'RestClient',
+            'CommandRegistry',
         }
         assert set(__all__) == expected
 
@@ -140,4 +169,13 @@ class TestAll:
             Container,
             IStateManager,
             IEventBus,
+            ICache,
+            ITaskQueue,
+            AgentManager,
+            PluginManager,
+            SkillManager,
+            TTLCache,
+            TaskQueue,
+            RestClient,
+            CommandRegistry,
         )

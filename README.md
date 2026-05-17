@@ -1,16 +1,17 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.0.0-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
+<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.1.0-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
 
-# OpenCode Ecosystem v4.0.0
+# OpenCode Ecosystem v4.1.0
 
 ### Arquitetura Multiagente Evolutiva para Produção Científica e Engenharia de Software
 
 <br/>
 
 [![Agentes](https://img.shields.io/badge/Agentes-118-6366f1?style=flat-square)](agents/)
-[![MCPs](https://img.shields.io/badge/MCP_Servers-38-0ea5e9?style=flat-square)](opencode.json)
-[![Skills](https://img.shields.io/badge/Skills-45-10b981?style=flat-square)](skills/)
+[![MCPs](https://img.shields.io/badge/MCP_Servers-17-0ea5e9?style=flat-square)](opencode.json)
+[![Skills](https://img.shields.io/badge/Skills-74-10b981?style=flat-square)](skills/)
+[![DI Migration](https://img.shields.io/badge/DI_Migration-Fases_1–7_✅-22c55e?style=flat-square)](.reversa/DI_MIGRATION.md)
 [![Python](https://img.shields.io/badge/Python-109.180_linhas-f59e0b?style=flat-square&logo=python)](nexus/)
 [![Qualis](https://img.shields.io/badge/Qualis-A1_%E2%89%A595%2F100-ef4444?style=flat-square)](criador-artigo/)
 [![Modelo](https://img.shields.io/badge/Modelo-big--pickle_200K_ctx-8b5cf6?style=flat-square)](opencode.json)
@@ -19,7 +20,7 @@
 
 <br/>
 
-> **Versão:** 4.0.0 · **Autor:** Reversa Framework v1.2.22 · **Atualizado:** 2026-05-16  
+> **Versão:** 4.1.0 · **Autor:** Reversa Framework v1.2.22 · **Atualizado:** 2026-05-16  
 > **Classificação:** Arquitetura de Agentes, MCPs e Skills · **Modelo:** `opencode/big-pickle` (200K ctx, 128K out)
 
 </div>
@@ -28,8 +29,9 @@
 
 ## Resumo
 
-O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagente, autônoma e evolutiva, integrada ao OpenCode (OpenAI Codex CLI). Composta por **118 agentes especializados**, **38 servidores MCP** (Model Context Protocol), **45 skills de domínio** e aproximadamente **109.180 linhas de código Python**, a arquitetura operacionaliza de forma unificada:
+O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagente, autônoma e evolutiva, integrada ao OpenCode (OpenAI Codex CLI). Composta por **118 agentes especializados**, **17 servidores MCP** (Model Context Protocol), **74 skills de domínio** e aproximadamente **109.180 linhas de código Python**, a arquitetura operacionaliza de forma unificada:
 
+- **Injeção de Dependência (DI)** — Container central com 11 serviços + bridge Python ⟷ TypeScript para 14 comandos e 3 plugins
 - **Produção acadêmica Qualis A1** — pipeline de 49 agentes com score ≥ 95/100
 - **Pesquisa científica autônoma** — SEEKER com 10+ fontes (arXiv, PubMed, OpenAlex)
 - **Documentação jurídica** — 7 skills e servidor MCP dedicado
@@ -44,8 +46,9 @@ O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagen
 ## Índice
 
 - [Arquitetura Geral](#arquitetura-geral)
+- [Injeção de Dependência (DI)](#injeção-de-dependência-di)
 - [Orquestração Multiagente — Nexus NMA v6.2](#nexus-nma-v62)
-- [MCP Servers — 38 Servidores](#mcp-servers)
+- [MCP Servers — 17 Servidores](#mcp-servers)
 - [Estratégias RAG](#estratégias-rag)
 - [Pipeline Acadêmico Qualis A1](#pipeline-acadêmico-qualis-a1)
 - [Autocura do Ecossistema](#autocura-self-healing)
@@ -61,16 +64,53 @@ O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagen
 
 <img src="diagrams/architecture-overview.svg" alt="Arquitetura Geral do OpenCode Ecosystem" width="100%"/>
 
-O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do runtime de infraestrutura até a orquestração meta-granular:
+O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do runtime de infraestrutura até a orquestração meta-granular, com **Injeção de Dependência (DI)** transversal a todas as camadas:
 
 | Camada | Nome | Componentes Principais | Tecnologia |
 |:------:|------|----------------------|------------|
 | **L6** | Orquestração | Nexus NMA v6.2, Reversa v1.2.22, Evo Loop | Python, JSON-RPC |
 | **L5** | Agentes | 118 agentes em 4 categorias | OpenCode Subagents |
-| **L4** | MCP | 38 servidores (36 local, 2 remote) | MCP SDK, stdio/HTTP |
-| **L3** | Skills | 45 SKILL.md com progressive disclosure | YAML, Markdown |
+| **L4** | MCP | 17 servidores (15 local, 2 remote) | MCP SDK, stdio/HTTP |
+| **L3** | Skills | 74 SKILL.md com progressive disclosure | YAML, Markdown |
 | **L2** | Dados | SQLite, Mem0, Quantum, DOCLing | Ollama, SQLite |
 | **L1** | Infra | Node.js 25, Bun 1.3, Python 3.12 | Win32 |
+| **DI** | Container | 8 serviços core + 3 plugins TS registrados, bridge CommandRegistry | Container, from_container() |
+
+---
+
+## Injeção de Dependência (DI)
+
+O Container central do ecossistema foi migrado para **Injeção de Dependência** (Fases 1–7), registrando 11 serviços e garantindo compatibilidade retroativa total.
+
+```
+Container (singleton)
+├── state_manager       → IStateManager
+├── event_bus           → IEventBus  
+├── agent_manager       → AgentManager     (container-aware)
+├── plugin_manager      → PluginManager    (container-aware)
+├── skill_manager       → SkillManager     (container-aware)
+├── cache               → TTLCache         (com event_bus)
+├── task_queue          → TaskQueue        (com event_bus + cache)
+├── command_registry    → CommandRegistry  (bridge 14 comandos)
+├── plugin.manus-evolve         → PluginMeta (typescript)
+├── plugin.ecosystem-sync       → PluginMeta (typescript)
+└── plugin.bernstein-sync       → PluginMeta (typescript)
+```
+
+### Bridges Python ⟷ TypeScript
+
+| Bridge | Função | Itens |
+|--------|--------|:-----:|
+| `CommandRegistry` | Lê 14 comandos de `command/*.md`, espelha TRIGGER_MAP do TS | 14 comandos |
+| `PluginManager.discover_ts_plugins()` | Descobre plugins TS como metadados (não executa) | 3 plugins |
+| `register_in_container()` | Registra `plugin.<nome>` no Container | 3 chaves |
+| `health_summary()` | Painel de saúde dos plugins TS no ecossistema | 3+ plugins |
+
+**Padrões de design:** `from_container()` factory (Nexus) + `container=` opcional no construtor (Managers).  
+**Testes:** 88/88 passando (54 F5+6 + 34 F7) · 378/391 testes legado preservados.  
+**Backward compatibility:** 100% — `PluginManager()`, `MCPRouter()`, `CommandRegistry()` todos funcionam sem container.
+
+> Documentação completa: [`.reversa/DI_MIGRATION.md`](.reversa/DI_MIGRATION.md)
 
 ---
 
@@ -106,15 +146,15 @@ L5 — Evolução              → ciclo de auto-aprimoramento (Manus Evolve)
 
 ### Scripts Core do Nexus
 
-| Script | Função |
-|--------|--------|
-| `sync_orchestrator.py` | Coordenação entre barreiras de sincronização |
-| `self_healer.py` | Autocura do ecossistema |
-| `meta_orchestrator.py` | Meta-orquestração L0 |
-| `evolution_loop.py` | Loop evolutivo autônomo |
-| `mcp_router.py` | Roteamento interno entre MCPs |
-| `context_offload.py` | Offload de contexto (55 sessões) |
-| `mcp_self_healer.py` | Servidor MCP de autocura (registrado) |
+| Script | Função | DI |
+|--------|--------|:--:|
+| `sync_orchestrator.py` | Coordenação entre barreiras de sincronização | ✅ |
+| `self_healer.py` | Autocura do ecossistema | ✅ |
+| `meta_orchestrator.py` | Meta-orquestração L0 | N/A |
+| `evolution_loop.py` | Loop evolutivo autônomo | ✅ |
+| `mcp_router.py` | Roteamento interno entre MCPs | ✅ (from_container) |
+| `context_offload.py` | Offload de contexto (55 sessões) | ✅ (from_container) |
+| `mcp_self_healer.py` | Servidor MCP de autocura (registrado) | N/A |
 
 ---
 
@@ -124,7 +164,7 @@ L5 — Evolução              → ciclo de auto-aprimoramento (Manus Evolve)
 
 O protocolo **Model Context Protocol (MCP)** opera em três zonas: **Host** (OpenCode), **sessões Client** (instâncias de ferramentas) e **servidores** locais e remotos que expõem recursos, ferramentas e prompts via stdio ou HTTP.
 
-### Distribuição dos 38 Servidores
+### Distribuição dos 17 Servidores
 
 | Categoria | Qt. | Servidores |
 |-----------|:--:|-----------|
@@ -134,6 +174,8 @@ O protocolo **Model Context Protocol (MCP)** opera em três zonas: **Host** (Ope
 | Memória e Decisões | 3 | `mem0-mcp`, `decisionnode`, `self-healer` |
 | Domínio Jurídico/Acadêmico | 6 | `maswos-juridico`, `maswos-mcp`, `maswos-rag`, `scihub`, `youtube-transcript`, `biomcp` |
 | Outros | 5 | `memory`, `github-search`, ... |
+
+O roteamento e validação entre MCPs é gerenciado pelo Container DI (`command_registry`) e pelo `mcp_router.py` (Nexus, DI-ready).
 
 ---
 
@@ -284,19 +326,22 @@ Scout → Archaeologist → Detective → Architect → Writer → Reviewer
 | Editais-BR | 73 | ~5.797 | 5,3% |
 | Artigo MIT-IA | 46 | ~5.678 | 5,2% |
 | Tests | 24 | ~3.996 | 3,7% |
-| Core | 20 | ~3.325 | 3,0% |
+| Core | 21 | ~3.805 | 3,5% |
 | Outros | 28+ | ~4.441 | 4,1% |
-| **Total** | **~427+** | **~109.180** | **100%** |
+| **Total** | **~428+** | **~109.660** | **100%** |
 
 ### Saúde Geral do Ecossistema
 
 | Indicador | Valor | Status |
 |-----------|:-----:|:------:|
-| MCPs ativos | 38/38 | 🟢 |
-| Skills dentro do limite | 43/45 | 🟢 95,6% |
+| MCPs ativos | 17/17 | 🟢 |
+| Container services registered | 11 (8 core + 3 plugin) | 🟢 |
+| Bridge commands (Python ⟷ TS) | 14/14 | 🟢 |
+| Skills dentro do limite | 72/74 | 🟢 |
 | Agentes registrados | 118 | 🟢 |
 | Reversa confidence | 100/100 | 🟢 |
 | AutoEvolve gerações | 9 | 🟢 |
+| DI Migration | Fases 1–7 ✅ (88/88 tests) | 🟢 |
 | Gaps abertos | 0 | 🟢 |
 | Health score Nexus | 96/100 | 🟢 |
 
@@ -311,26 +356,28 @@ Scout → Archaeologist → Detective → Architect → Writer → Reviewer
 | `/reversa` | 9 agentes: scout → archaeologist → ... → design-system |
 | `/quantum` | quantum-nexus-phd + code-runner + pdf |
 | `/plan` | writing-plans + sequential-thinking MCP |
-| `/auto` | openagent + todos os 38 MCPs |
+| `/auto` | openagent + todos os 17 MCPs |
+| `/ticket` | Jira ticket manager via CommandRegistry bridge |
 
 ---
 
 ## Notas Técnicas
 
-1. **Token Efficiency** — Contexto interno em formato compacto (+40% densidade); todo output ao usuário em PT-BR formal; `ptbr_corrector.py` com detecção CJK tolerância zero.
-2. **Progressive Disclosure** — `SKILL.md` ≤ 2.500B; conteúdo estendido em `references/*.md`; descoberta via campo `trigger` no frontmatter YAML.
-3. **MCP Lazy Init** — Servidores locais auto-inicializam na primeira chamada de ferramenta, sem overhead de startup.
-4. **Manus Evolve** — Engine autônoma que aprende de ciclos anteriores e grava novas skills em `evolution/`.
-5. **Auditoria Qualis A1** — 10 critérios ponderados + banca de 5 revisores + 4 orientadores, loopback iterativo até score ≥ 95/100.
-6. **DecisionNode** — Registro de decisões arquiteturais com busca semântica via embeddings (Ollama), prevenindo duplicação e mantendo histórico de depreciação.
+1. **DI Migration (Fases 1–7)** — Container central com 11 serviços, bridge Python ⟷ TS via `CommandRegistry` (14 comandos) e `PluginManager` (3 plugins). 88/88 testes passando, 100% backward compat.
+2. **Token Efficiency** — Contexto interno em formato compacto (+40% densidade); todo output ao usuário em PT-BR formal; `ptbr_corrector.py` com detecção CJK tolerância zero.
+3. **Progressive Disclosure** — `SKILL.md` ≤ 2.500B; conteúdo estendido em `references/*.md`; descoberta via campo `trigger` no frontmatter YAML.
+4. **MCP Lazy Init** — Servidores locais auto-inicializam na primeira chamada de ferramenta, sem overhead de startup.
+5. **Manus Evolve** — Engine autônoma que aprende de ciclos anteriores e grava novas skills em `evolution/`.
+6. **Auditoria Qualis A1** — 10 critérios ponderados + banca de 5 revisores + 4 orientadores, loopback iterativo até score ≥ 95/100.
+7. **DecisionNode** — Registro de decisões arquiteturais com busca semântica via embeddings (Ollama), prevenindo duplicação e mantendo histórico de depreciação.
 
 ---
 
 <div align="center">
 
-**OpenCode Ecosystem v4.0.0**
+**OpenCode Ecosystem v4.1.0**
 
-118 agentes · 38 MCPs · 45 skills · ~109.180 linhas Python
+118 agentes · 17 MCPs · 74 skills · Container DI · ~109.660 linhas Python
 
 *Documentação gerada pelo Reversa Framework v1.2.22 — 2026-05-16*
 

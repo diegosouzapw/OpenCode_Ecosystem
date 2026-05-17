@@ -1,16 +1,18 @@
 ﻿"""
-core/rest_client.py — Cliente HTTP com Retry, Timeout e Logging.
+core/rest_client.py — Cliente HTTP com Retry, Timeout, Logging e DI.
 
 Wrapper padronizado sobre ``httpx`` com exponential backoff,
 log estruturado e tratamento uniforme de erros mapeado para a
 hierarquia de exceções do core.
 
-Uso:
-    client = RestClient("https://api.example.com", timeout=30)
-    result = await client.get("/users", params={"page": 1})
+Uso com DI (novo):
+    container = Container.instance()
+    client = RestClient(container=container, base_url="https://api.example.com")
+    result = await client.get("/users")
 
-    async with RestClient("https://api.example.com") as c:
-        data = await c.post("/data", json={"key": "value"})
+Uso legado (compatível):
+    client = RestClient("https://api.example.com", timeout=30)
+    result = await client.get("/users")
 """
 
 from __future__ import annotations
@@ -37,6 +39,7 @@ class RestClient:
         timeout: Timeout padrão em segundos.
         max_retries: Número máximo de tentativas por requisição.
         headers: Cabeçalhos HTTP padrão.
+        container: Container DI opcional.
     """
 
     def __init__(
@@ -45,12 +48,17 @@ class RestClient:
         timeout: float = 30.0,
         max_retries: int = 3,
         headers: Optional[dict[str, str]] = None,
+        container: Any = None,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout
         self._max_retries = max_retries
         self._default_headers = headers or {}
         self._client: Optional[httpx.AsyncClient] = None
+        self._container = container
+
+        if container is not None and not container.is_registered('http_client'):
+            container.register('http_client', self)
 
     # --- Gerenciamento do Client ---
 

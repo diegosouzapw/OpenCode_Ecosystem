@@ -1,18 +1,24 @@
 ﻿"""
-core/task_queue.py — Fila de Tarefas Assíncronas com Prioridade.
+core/task_queue.py — Fila de Tarefas Assíncronas com Prioridade e DI.
 
 Gerencia execução concorrente de tarefas com suporte a:
 - Prioridades (LOW, NORMAL, HIGH, CRITICAL)
 - Concorrência limitada (max_concurrent)
 - Status tracking (PENDING → RUNNING → COMPLETED/FAILED)
 - Worker pool automatizado
+- Integração com IEventBus (publica eventos de tarefa)
 
-Uso:
+Uso com DI (novo):
+    container = Container.instance()
+    queue = TaskQueue(container=container, max_concurrent=4)
+    await queue.start()
+    task_id = await queue.enqueue("processar", minha_coro)
+    await queue.stop()
+
+Uso legado (compatível):
     queue = TaskQueue(max_concurrent=4)
     await queue.start()
     task_id = await queue.enqueue("processar", minha_coro)
-    task = queue.get_task(task_id)
-    await queue.stop()
 """
 
 from __future__ import annotations
@@ -24,6 +30,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Callable, Coroutine, Optional
+from core.interfaces import ITaskQueue
 
 logger = logging.getLogger(__name__)
 
@@ -71,21 +78,33 @@ class Task:
     result: Any = None
 
 
-class TaskQueue:
-    """Fila de tarefas assíncronas com worker pool.
+class TaskQueue(ITaskQueue):
+    """Fila de tarefas assíncronas com worker pool e suporte a DI.
 
     Args:
         max_concurrent: Número máximo de workers simultâneos.
+        container: Container DI opcional para resolver event_bus.
+        on_task_complete: Callback opcional invoked em cada tarefa completada.
     """
 
-    def __init__(self, max_concurrent: int = 4) -> None:
+    def __init__(
+        self,
+        max_concurrent: int = 4,
+        container: Any = None,
+        on_task_complete: Optional[Callable[[str, Any], None]] = None,
+    ) -> None:
         self._max_concurrent = max_concurrent
+        self._container = container
+        self._on_task_complete = on_task_complete
         self._queue: asyncio.PriorityQueue[tuple[int, str, Callable[[], Coroutine]]] = (
             asyncio.PriorityQueue()
         )
         self._tasks: dict[str, Task] = {}
         self._workers: list[asyncio.Task[None]] = []
         self._running = False
+
+        if container is not None and not container.is_registered('task_queue'):
+            container.register('task_queue', self)
 
     async def start(self) -> None:
         """Inicia o worker pool."""
@@ -195,17 +214,42 @@ class TaskQueue:
 
             task.status = TaskStatus.RUNNING
             task.started_at = time.time()
+
+            # Publica evento de inicio se event_bus disponivel
+            try:
+                eb = self._container.resolve('event_bus') if self._container else None
+                if eb:
+                    await eb.publish('task.started', {'task_id': task.id, 'name': task.name})
+            except Exception:
+                pass
+
             try:
                 result = await coro_fn()
                 task.status = TaskStatus.COMPLETED
                 task.result = result
                 logger.debug("Task %s (%s) completed", task.id[:8], task.name)
+
+                if self._on_task_complete:
+                    self._on_task_complete(task.id, task.result)
+                try:
+                    eb = self._container.resolve('event_bus') if self._container else None
+                    if eb:
+                        await eb.publish('task.completed', {'task_id': task.id, 'name': task.name, 'result': result})
+                except Exception:
+                    pass
+
             except asyncio.CancelledError:
                 task.status = TaskStatus.CANCELLED
             except Exception as e:
                 task.status = TaskStatus.FAILED
                 task.error = f"{type(e).__name__}: {e}"
                 logger.error("Task %s (%s) failed: %s", task.id[:8], task.name, e)
+                try:
+                    eb = self._container.resolve('event_bus') if self._container else None
+                    if eb:
+                        await eb.publish('task.failed', {'task_id': task.id, 'name': task.name, 'error': task.error})
+                except Exception:
+                    pass
             finally:
                 task.completed_at = time.time()
 

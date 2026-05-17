@@ -1,16 +1,19 @@
 """
-core/skill_manager.py — Gerenciamento de Skills.
+core/skill_manager.py — Gerenciamento de Skills com DI.
 
 Descoberta, carregamento e execução de skills do ecossistema.
 Skills são instruções especializadas (.md) que guiam agentes na
 execução de tarefas específicas.
 
-Uso:
-    mgr = SkillManager()
+Uso com DI (novo):
+    container = Container.instance()
+    mgr = SkillManager(container=container)
     mgr.discover()
     skill = mgr.get_skill("python-pro")
-    if mgr.match_skill("preciso de ajuda com Python"):
-        print(f"Triggered: {skill.name}")
+
+Uso legado (compatível):
+    mgr = SkillManager()
+    mgr.discover()
 """
 
 from __future__ import annotations
@@ -62,10 +65,15 @@ class SkillManager:
     _HEADING_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
     _DESC_RE = re.compile(r'^description:\s*["\']?(.+?)["\']?$', re.MULTILINE)
 
-    def __init__(self) -> None:
+    def __init__(self, container: Any = None) -> None:
         self._skills: dict[str, SkillInstance] = {}
         self._search_dirs: list[Path] = []
         self._keyword_index: dict[str, list[str]] = {}
+        self._container = container
+
+        # Auto-registro no Container DI
+        if container is not None and not container.is_registered('skill_manager'):
+            container.register('skill_manager', self)
 
     # ── Descoberta ─────────────────────────────────────────────────
 

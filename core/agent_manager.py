@@ -1,16 +1,20 @@
 ﻿"""
-core/agent_manager.py — Gerenciamento do Ciclo de Vida de Agentes.
+core/agent_manager.py — Gerenciamento do Ciclo de Vida de Agentes com DI.
 
 Registro, criação, execução e monitoramento de agentes.
 Agentes são unidades autônomas de processamento com ciclo de vida
 definido: INIT → RUN → HEALTH_CHECK → DESTROY.
 
-Uso:
-    manager = AgentManager()
+Uso com DI (novo):
+    container = Container.instance()
+    manager = AgentManager(container=container)
     manager.register_agent_type("reversa-scout", ScoutAgent)
     agent_id = await manager.create_agent("reversa-scout", {"target": "./src"})
     result = await manager.run_agent(agent_id)
-    status = manager.get_agent_status(agent_id)
+
+Uso legado (compatível):
+    manager = AgentManager()
+    # Funciona exatamente como antes
 """
 
 from __future__ import annotations
@@ -91,7 +95,7 @@ class AgentInstance:
 
 
 class AgentManager:
-    """Gerenciador central de agentes.
+    """Gerenciador central de agentes com suporte a DI.
 
     Responsável por:
     - Registrar tipos de agente
@@ -99,13 +103,22 @@ class AgentManager:
     - Executar agentes com ciclo de vida completo
     - Monitorar health checks
     - Destruir agentes e limpar recursos
+
+    DI: Se um Container for fornecido, os agentes criados podem
+    resolver dependências através dele. O próprio AgentManager
+    se registra como 'agent_manager' no container.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, container: Any = None) -> None:
         self._types: dict[str, type] = {}
         self._type_defs: dict[str, AgentTypeDef] = {}
         self._instances: dict[str, AgentInstance] = {}
         self._agents: dict[str, Agent] = {}
+        self._container = container
+
+        # Auto-registro no Container DI
+        if container is not None and not container.is_registered('agent_manager'):
+            container.register('agent_manager', self)
 
     # ── Registro de Tipos ──────────────────────────────────────────
 
@@ -186,7 +199,7 @@ class AgentManager:
         instance.status = AgentStatus.INITIALIZING
 
         try:
-            agent = agent_class()
+            agent = agent_class(container=self._container) if self._container else agent_class()
             await agent.initialize(instance.config)
             instance.status = AgentStatus.READY
             self._instances[instance.id] = instance
