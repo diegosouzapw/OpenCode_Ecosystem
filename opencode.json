@@ -8,6 +8,11 @@
     "prune": true,
     "reserved": 10000
   },
+  "plugin": [
+    "plugins/ecosystem-sync.ts",
+    "plugins/manus-evolve.ts",
+    "plugins/bernstein-sync.ts"
+  ],
   "mcp": {
     "filesystem": {
       "type": "local",
@@ -429,19 +434,6 @@
       "tags": [
         "news",
         "social"
-      ]
-    },
-    "newsmcp": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "npx",
-        "-y",
-        "@newsmcp/server"
-      ],
-      "tags": [
-        "news",
-        "real-time"
       ]
     },
     "flowzap-mcp": {

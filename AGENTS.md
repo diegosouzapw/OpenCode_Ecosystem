@@ -5,7 +5,7 @@
 
 ---
 
-# OPENCODE 统一生态系统 v3.5 (Transformer架构 + 语言校正器)
+# OPENCODE 统一生态系统 v4.2 (MiroFish/BettaFish + PhD Auditor + 38推理)
 
 ## 环境
 - Windows 11, Node.js v25, Bun 1.3, OpenCode CLI 1.14
@@ -18,30 +18,26 @@
 - 校正器位置: `criador-artigo/banca/ptbr_corrector.py`
 - 校正流程: 检测CJK → 移除 → 修正PT-BR拼写 → 验证 → 交付
 
-## 自主同步架构
+## 自主同步架构 v4.2
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│     交叉验证引擎 v3.5 + 语言校正器 + 令牌效率              │
+│     交叉验证引擎 v4.2 + MiroFish/BettaFish + PhD审计      │
 │                                                          │
-│  MCPs(17) ◄──► 技能(74) ◄──► 智能体(118)                 │
+│  MCPs(40) ◄──► 技能(104) ◄──► 智能体(125)                │
 │       │            │            │                        │
 │       └────────────┼────────────┘                        │
 │                    │                                     │
-│           ┌────────┴────────┐                            │
-│           │  健康评分系统    │                            │
-│           │  (100% 健康)   │                            │
-│           └────────┬────────┘                            │
+│   P14-Forum ◄──► P15-DocIR ◄──► P16-ANP ◄──► P17-MW    │
 │                    │                                     │
-│  插件(12) ◄──► 命令(14) ◄──► LSP(1) ◄──► 校正器(1)      │
+│   P18-PhD Auditor (Nash + Cohen + Bonferroni + Qualis)   │
+│   MiroFish/BettaFish: OASIS + Forum + Config + Graph    │
+│   BRAZIL_TIMEZONE (UTC-3) · 38推理 · 10博弈论            │
 │                                                          │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │   进化管道 (6阶段 + 语言校正)                       │   │
-│  │   感知→发现→安装→验证→进化→学习→校正               │   │
-│  └──────────────────────────────────────────────────┘   │
+│  插件(15) ◄──► 命令(14) ◄──► LSP(1) ◄──► 校正器(1)      │
 │                                                          │
 │  同步编排器: nexus/scripts/sync_orchestrator.py          │
-│  跨验证矩阵: 172个亲和力连接 | 97个组件                    │
+│  跨验证矩阵: 200+个亲和力连接 | 110+个组件                 │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -49,19 +45,23 @@
 
 | 类别 | 数量 | 状态 |
 |------|------|------|
-| MCPs | 17 | 15本地+2远程 |
-| 技能 | 74 | 12类 (+token-efficiency v2.0) |
-| 智能体 | 118 | 核心56+创作49+SEEKER12+语言校正器1 |
-| 插件 | 12 | 10npm+2本地(.ts) |
+| MCPs | 40 | 38本地+2远程 |
+| 技能 | 104 | 12类 (+P14-P18 MiroFish/BettaFish) |
+| 智能体 | 125 | 核心56+创作49+SEEKER12+Reversa7+语言校正器1 |
+| 插件 | 15 | 10npm+2本地(.ts)+3 bridge |
 | 命令 | 14 | 斜杠命令 |
 | LSP | 1 | TypeScript |
 | 量子 | 81 | 引用/脚本/输出/模板 |
 | Nexus | 40 | 多智能体/同步屏障/推理类型 |
+| MiroFish/BettaFish | 11 | OASIS+Forum+Config+Graph+Report+Nash+Stats+Qualis+Sensitivity+IMRAD+Debate |
+| 推理类型 | 38 | 6分类 (逻辑5+辩证5+博弈论10+决策5+战略5+创新8) |
 | 文章创建器 | 91 | MASWOS v4.2+桥接+自动评分 |
 | SEEKER | 78 | 10智能体+论证树+10+学术来源 |
 | 进化 | 9 | 6代ciclos + editais-br v7.1实战 + cache versionado + KeyError fix |
-| 文档 | 12 | 中等收入陷阱文章(51页,46TSAC) |
 | 校正器 | 1 | ptbr_corrector.py (CJK检测+PT-BR语法) |
+
+## MiroFish/BettaFish 集成 (v4.2 新增)
+`skills/agent-forum/` — P14-P18完整管道: Agent Forum(多智能体辩论) → Debate Strategies(38推理+6策略+8配置) → PhD Auditor(NashSolver+StatisticalRigor+QualisA1Auditor+SensitivityAnalyzer+IMRADFormatter). 集成nexus-phd-strategist. BRAZIL_TIMEZONE(UTC-3)替换CHINA_TIMEZONE. 50指标真实数据仿真(World Bank/WHO/FAO/UNESCO).
 
 ## 量子Nexus v7.2
 `quantum/` — 81文件: 21学术引用, 26 Python/Rust脚本, 7验证输出, QML医学HAM10000(89.52%), 50量子比特MPS, Grad-CAM, ZNE/PEC误差缓解, Qualis A1.

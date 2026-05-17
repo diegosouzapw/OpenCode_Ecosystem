@@ -1,20 +1,24 @@
 ---
 title: "OpenCode Ecosystem — Documentação Técnica da Arquitetura"
-version: "4.1.0"
-agent_count: 118
-mcp_count: 17
-skill_count: 74
-python_lines: 109660
+version: "4.2.0"
+agent_count: 125
+mcp_count: 40
+skill_count: 104
+python_lines: 114000
+reasoning_types: 38
+game_theory_strategies: 10
+debate_profiles: 8
+simulation_indicators: 50
 di_migration: "Fases 1-7 ✅"
 container_services: 11
 commands_bridge: 14
 ts_plugins_bridge: 3
-last_updated: "2026-05-16"
-classification: "Arquitetura de Agentes, MCPs e Skills com DI"
-author: "Reversa Framework v1.2.22"
+last_updated: "2026-05-17"
+classification: "Arquitetura de Agentes, MCPs e Skills com DI + MiroFish/BettaFish + PhD Auditor"
+author: "Reversa Framework v1.2.22 + Nexus PhD Strategist"
 ---
 
-# OpenCode Ecosystem v4.1.0
+# OpenCode Ecosystem v4.2.0
 
 O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao OpenCode (OpenAI Codex CLI), composta por **118 agentes**, **17 servidores MCP**, **74 skills especializadas**, **11 serviços em Container DI** e aproximadamente **109.660 linhas de código Python**. O ecossistema operacionaliza produção acadêmica Qualis A1, pesquisa científica autônoma, documentação jurídica, análise de dados quânticos e engenharia reversa de sistemas legados — tudo orquestrado por um Container central de Injeção de Dependência.
 
@@ -83,14 +87,59 @@ O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao O
 
 <img src="diagrams/architecture-overview.svg" alt="Arquitetura do Ecossistema OpenCode" width="100%" style="max-width: 900px; border-radius: 8px; margin: 16px 0;">
 
+---
+
+## 🐟 MiroFish/BettaFish & PhD Auditor (P14-P18) — NOVO em v4.2.0
+
+O ecossistema agora integra componentes adaptados do **MiroFish** (61K ⭐, swarm intelligence engine), **BettaFish** (40.9K ⭐, multi-agent analysis) e **nexus-phd-strategist** (Qualis A1), formando um pipeline completo de simulação multiagente com rigor acadêmico:
+
+| Componente | Origem | Classe/Engine | Status |
+|-----------|--------|--------------|--------|
+| **OASIS Profile Gen** | MiroFish OASIS | `generate_heuristic_profile()` + `validate_profiles_with_rigor()` | ✅ |
+| **Agent Forum (P14)** | BettaFish ForumEngine | `Forum(agents, debate_profile)` + 38 raciocínios | ✅ |
+| **Debate Strategies (P17)** | Axelrod + Game Theory | `ReasoningType` (38 tipos), `DEBATE_PROFILES` (8), `TOURNAMENT_STRATEGIES` (6) | ✅ |
+| **Config Generator** | MiroFish SimConfig | `ConfigGenerator` + `BRAZIL_TIMEZONE` (UTC-3) | ✅ |
+| **Graph Builder** | MiroFish Graph Engine | `GraphBuilderService` + `audit_graph_quality()` | ✅ |
+| **Report Agent (P15)** | BettaFish ReportEngine | `ReportAgent(graph_id, requirement)` + `IMRADFormatter` | ✅ |
+| **NashSolver (P18)** | nexus-phd-strategist | Nash N×M, Dilema do Prisioneiro, Cooperação δ | ✅ |
+| **StatisticalRigor (P18)** | nexus-phd-strategist | Cohen's d, Bonferroni, Power Analysis (1-β) | ✅ |
+| **QualisA1Auditor (P18)** | nexus-phd-strategist | Score 0-100 (7 critérios), recomendações | ✅ |
+| **SensitivityAnalyzer (P18)** | nexus-phd-strategist | Elasticidade, parâmetros críticos, robustez | ✅ |
+
+### 38 Tipos de Raciocínio + Teoria dos Jogos
+
+| Categoria | Quantidade | Destaque |
+|-----------|-----------|----------|
+| Lógica Clássica | 5 | Deductive, Inductive, Abductive, Analogical, Syllogistic |
+| Dialética & Crítica | 5 | Dialectical, Socratic, Critical, Deconstructive, Falsificationist |
+| **Teoria dos Jogos** | **10** | Nash, Prisoner's Dilemma, Zero-Sum, Tit-for-Tat, Stackelberg, Bargaining, Coalitional, ESS, Signaling, Mechanism Design |
+| Decisão sob Incerteza | 5 | Bayesian, Minimax, Expected Utility, Prospect Theory, Real Options |
+| Estratégico | 5 | Competitive, Cooperative, Adversarial, Stakeholder, Pareto-Optimal |
+| Criativo & Sistêmico | 8 | Systems Thinking, Scenario Planning, Lateral, First Principles, Design Thinking, Ethical |
+
+### Simulação de Referência: 50 Indicadores do Brasil
+
+A simulação integrada utiliza **50 indicadores reais** (World Bank, WHO, FAO, UNESCO, SIPRI, ILO, ITU, IBGE, INPE) cobrindo 5 dimensões:
+
+```
+50 indicadores | 12 agentes OASIS | 25 correlações Pearson | 6 equilíbrios Nash (3×3)
+Fontes: World Bank, WHO, FAO, UNESCO, SIPRI, ILO, ITU, OECD, IBGE, INPE
+```
+
+**Indicadores críticos**: PIB pc US$ 10.311 (threshold US$ 14.005), P&D 1.2% PIB (threshold 2.7%), PISA Math 382 pts (threshold 489 pts), AI Readiness 54.1/100 (threshold 75/100).
+
+**Correlações fortes**: Internet×AI Readiness (r=0.998), Saneamento×Mortalidade Infantil (r=-0.947), Pobreza×PIB (r=-0.833).
+
+---
+
 ### Camadas Arquiteturais
 
 | Camada | Função | Componentes | Tecnologia |
 |--------|--------|-------------|------------|
 | **L6 — Orquestração** | Coordenação meta-granular entre pipelines | Nexus NMA v6.2, Reversa, Evo Loop | Python, JSON-RPC |
-| **L5 — Agentes** | Execução especializada de tarefas | 118 agentes em 4 categorias | OpenCode Subagents |
-| **L4 — MCP** | Protocolo de comunicação ferramenta-agente | 38 servidores (36 local, 2 remote) | MCP SDK, stdio |
-| **L3 — Skills** | Diretrizes de domínio para agentes | 45 SKILL.md com progressive disclosure | YAML, Markdown |
+| **L5 — Agentes** | Execução especializada de tarefas | 125 agentes em 5 categorias | OpenCode Subagents |
+| **L4 — MCP** | Protocolo de comunicação ferramenta-agente | 40 servidores (38 local, 2 remote) | MCP SDK, stdio |
+| **L3 — Skills** | Diretrizes de domínio para agentes | 104 skills (P14-P18, oasis-profile-gen, debate-strategies, phd-auditor) | YAML, Markdown |
 | **L2 — Dados** | Armazenamento, memória e persistência | SQLite, Mem0, Quantum, DOCLing | SQLite, Ollama, PDF |
 | **L1 — Infra** | Runtime e sistema de arquivos | Node.js 25, Bun 1.3, Python 3.12 | Win32, Docker |
 | **DI** | Injeção de Dependência transversal | Container 11 serviços, 2 bridges (CommandRegistry + PluginManager) | Python, Container pattern |

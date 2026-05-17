@@ -13,6 +13,8 @@
  * Integrado com Nexus Multiagents v6.2 (sync barriers + feedback)
  */
 import type { Plugin } from "@opencode-ai/plugin"
+import { readFile, writeFile, mkdir } from "fs/promises"
+import { existsSync } from "fs"
 
 interface ToolMetric {
   tool: string
@@ -78,9 +80,10 @@ const SKILLS_DIR = "evolution"
 
 async function loadState(directory: string): Promise<ManusState> {
   try {
-    const file = Bun.file(`${directory}/${STATE_FILE}`)
-    if (await file.exists()) {
-      const s = await file.json()
+    const statePath = `${directory}/${STATE_FILE}`
+    if (existsSync(statePath)) {
+      const content = await readFile(statePath, "utf-8")
+      const s = JSON.parse(content)
       if (!s.toolCallMetrics) s.toolCallMetrics = null
       if (!s.nexusReports) s.nexusReports = []
       if (!s.lastNexusRun) s.lastNexusRun = null
@@ -108,7 +111,8 @@ async function loadState(directory: string): Promise<ManusState> {
 }
 
 async function saveState(directory: string, state: ManusState) {
-  await Bun.write(`${directory}/${STATE_FILE}`, JSON.stringify(state, null, 2))
+  await mkdir(`${directory}/.evolve`, { recursive: true }).catch(() => {})
+  await writeFile(`${directory}/${STATE_FILE}`, JSON.stringify(state, null, 2))
 }
 
 function extractPatterns(task: string, result: string): string[] {
@@ -205,14 +209,15 @@ ${round.score}/100
 `
 
   const skillPath = `${directory}/${SKILLS_DIR}/${skillName}.md`
-  await Bun.write(skillPath, skillContent)
+  await mkdir(`${directory}/${SKILLS_DIR}`, { recursive: true }).catch(() => {})
+  await writeFile(skillPath, skillContent)
   return skillName
 }
 
 export const ManusEvolvePlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
   console.log("[ManusEvolve v2.2] PlanAct Engine + Nexus Pipeline integrated")
   let state = await loadState(directory)
-  try { await $`mkdir -p ${directory}/${SKILLS_DIR}`.quiet() } catch (_) {}
+  await mkdir(`${directory}/${SKILLS_DIR}`, { recursive: true }).catch(() => {})
 
   return {
     "session.created": async () => {

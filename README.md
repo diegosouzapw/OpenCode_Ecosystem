@@ -1,27 +1,27 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.1.0-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
+<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.2.0-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
 
-# OpenCode Ecosystem v4.1.0
+# OpenCode Ecosystem v4.2.0
 
-### Arquitetura Multiagente Evolutiva para Produção Científica e Engenharia de Software
+### Arquitetura Multiagente Evolutiva + Simulação MiroFish/BettaFish + PhD Auditor
 
 <br/>
 
-[![Agentes](https://img.shields.io/badge/Agentes-118-6366f1?style=flat-square)](agents/)
-[![MCPs](https://img.shields.io/badge/MCP_Servers-17-0ea5e9?style=flat-square)](opencode.json)
-[![Skills](https://img.shields.io/badge/Skills-74-10b981?style=flat-square)](skills/)
+[![Agentes](https://img.shields.io/badge/Agentes-125-6366f1?style=flat-square)](agents/)
+[![MCPs](https://img.shields.io/badge/MCP_Servers-40-0ea5e9?style=flat-square)](opencode.json)
+[![Skills](https://img.shields.io/badge/Skills-104-10b981?style=flat-square)](skills/)
+[![Raciocínios](https://img.shields.io/badge/Raciocínios-38_tipos-f59e0b?style=flat-square)](skills/agent-forum)
+[![Teoria dos Jogos](https://img.shields.io/badge/Game_Theory-10_estratégias-ef4444?style=flat-square)](skills/agent-forum/scripts/debate_strategies.py)
+[![Qualis](https://img.shields.io/badge/Qualis_A1-Auditor_%E2%89%A580%2F100-10b981?style=flat-square)](skills/agent-forum/scripts/phd_auditor.py)
 [![DI Migration](https://img.shields.io/badge/DI_Migration-Fases_1–7_✅-22c55e?style=flat-square)](.reversa/DI_MIGRATION.md)
-[![Python](https://img.shields.io/badge/Python-109.180_linhas-f59e0b?style=flat-square&logo=python)](nexus/)
-[![Qualis](https://img.shields.io/badge/Qualis-A1_%E2%89%A595%2F100-ef4444?style=flat-square)](criador-artigo/)
-[![Modelo](https://img.shields.io/badge/Modelo-big--pickle_200K_ctx-8b5cf6?style=flat-square)](opencode.json)
-[![Licença](https://img.shields.io/badge/Licença-MIT-gray?style=flat-square)](LICENSE)
+[![BRAZIL_TZ](https://img.shields.io/badge/Timezone-BRAZIL_UTC--3-8b5cf6?style=flat-square)](skills/config-generator)
 [![Status](https://img.shields.io/badge/Status-Produção-22c55e?style=flat-square)]()
 
 <br/>
 
-> **Versão:** 4.1.0 · **Autor:** Reversa Framework v1.2.22 · **Atualizado:** 2026-05-16  
-> **Classificação:** Arquitetura de Agentes, MCPs e Skills · **Modelo:** `opencode/big-pickle` (200K ctx, 128K out)
+> **Versão:** 4.2.0 · **Autor:** Reversa Framework v1.2.22 + Nexus PhD Strategist · **Atualizado:** 2026-05-17  
+> **Classificação:** Arquitetura Multiagente + MiroFish/BettaFish + PhD Auditor · **Modelo:** `opencode/big-pickle` (200K ctx, 128K out)
 
 </div>
 
@@ -29,12 +29,13 @@
 
 ## Resumo
 
-O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagente, autônoma e evolutiva, integrada ao OpenCode (OpenAI Codex CLI). Composta por **118 agentes especializados**, **17 servidores MCP** (Model Context Protocol), **74 skills de domínio** e aproximadamente **109.180 linhas de código Python**, a arquitetura operacionaliza de forma unificada:
+O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagente, autônoma e evolutiva, integrada ao OpenCode (OpenAI Codex CLI). Composta por **125 agentes especializados**, **40 servidores MCP**, **104 skills** e aproximadamente **114.000 linhas de código Python**, a arquitetura operacionaliza de forma unificada:
 
-- **Injeção de Dependência (DI)** — Container central com 11 serviços + bridge Python ⟷ TypeScript para 14 comandos e 3 plugins
+- **Simulação MiroFish/BettaFish** — Pipeline multiagente com OASIS Profile Gen, Agent Forum (38 raciocínios + Teoria dos Jogos), Config Generator (BRAZIL_TIMEZONE), Graph Builder e Report Agent
+- **PhD Auditor (P18)** — NashSolver generalizado, StatisticalRigor (Cohen's d, Bonferroni, Power Analysis), QualisA1Auditor (score 0-100, 7 critérios), SensitivityAnalyzer, IMRADFormatter
+- **Injeção de Dependência (DI)** — Container central com 11 serviços + bridge Python ⟷ TypeScript
 - **Produção acadêmica Qualis A1** — pipeline de 49 agentes com score ≥ 95/100
 - **Pesquisa científica autônoma** — SEEKER com 10+ fontes (arXiv, PubMed, OpenAlex)
-- **Documentação jurídica** — 7 skills e servidor MCP dedicado
 - **Computação quântica aplicada** — VQC 50-qubit, QML HAM10000 (89,52% acurácia)
 - **Engenharia reversa de sistemas** — Reversa Framework v1.2.22 (confiança 100%)
 
@@ -46,6 +47,7 @@ O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagen
 ## Índice
 
 - [Arquitetura Geral](#arquitetura-geral)
+- [Simulação MiroFish/BettaFish + PhD Auditor](#simulação-mirofishbettafish--phd-auditor)
 - [Injeção de Dependência (DI)](#injeção-de-dependência-di)
 - [Orquestração Multiagente — Nexus NMA v6.2](#nexus-nma-v62)
 - [MCP Servers — 17 Servidores](#mcp-servers)
@@ -75,6 +77,39 @@ O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do ru
 | **L2** | Dados | SQLite, Mem0, Quantum, DOCLing | Ollama, SQLite |
 | **L1** | Infra | Node.js 25, Bun 1.3, Python 3.12 | Win32 |
 | **DI** | Container | 8 serviços core + 3 plugins TS registrados, bridge CommandRegistry | Container, from_container() |
+
+---
+
+---
+
+## Simulação MiroFish/BettaFish + PhD Auditor
+
+O ecossistema integra pipeline completo de simulação multiagente adaptado do **MiroFish** (61K ⭐, swarm intelligence) e **BettaFish** (40.9K ⭐, análise multiagente), com rigor acadêmico do **nexus-phd-strategist**:
+
+### Pipeline P14-P18
+
+| Fase | Componente | Origem | O que faz |
+|------|-----------|--------|-----------|
+| P14 | Agent Forum | BettaFish ForumEngine | Debate multiagente com moderador LLM |
+| P15 | Document IR | BettaFish ReportEngine | Report pipeline com IR intermediário |
+| P16 | ANP (Agent Node Pipeline) | BettaFish QueryEngine | Pipeline de nós com DAG paralelo |
+| P17 | MiddlewareChain | DeerFlow 11-layer | Cadeia de 9 middlewares (Stats↔Checkpoint) |
+| P18 | PhD Auditor | nexus-phd-strategist | NashSolver + StatisticalRigor + QualisA1Auditor |
+
+### 38 Tipos de Raciocínio + 10 Estratégias de Teoria dos Jogos
+
+Os debates são orquestrados com **38 tipos de raciocínio** (Dedutivo, Indutivo, Dialético, Socrático, Nash, Bayesian, etc.) e **10 estratégias de Teoria dos Jogos** (Dilema do Prisioneiro, Equilíbrio de Nash N×M, Tit-for-Tat, Shapley Value, Mechanism Design, etc.).
+
+### Simulação de 50 Indicadores (Brasil)
+
+Simulação integrada com **50 indicadores reais** de fontes verificadas:
+- Macroeconomia: PIB per capita, inflação, Gini, desemprego, IED, dívida externa
+- Saúde: expectativa de vida, mortalidade infantil, vacinação, gastos em saúde
+- Educação: PISA, matrículas, alfabetização, paridade de gênero
+- Infraestrutura: eletricidade, água, saneamento, internet, energia renovável
+- Social: pobreza, homicídios, proteção social, democracia, AI readiness
+
+**Achados**: Correlação Internet×AI Readiness (r=0.998), Saneamento×Mortalidade (r=-0.947).
 
 ---
 

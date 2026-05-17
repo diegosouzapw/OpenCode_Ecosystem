@@ -11,14 +11,14 @@ compatibility: opencode
 allowed-tools: Read, Write, Bash, Sqlite
 metadata:
   author: Reversa Engine (padrão MiroFish)
-  version: "1.0.0"
+  version: "2.0.0"
   domain: architecture
   triggers: state machine, pipeline, state, checkpoint, stage, status, transition, workflow, lifecycle, phase
   role: orchestration
   scope: pipeline
   output-format: json
   related-skills: plan-generator, agent-smith
-  inspired-by: MiroFish SimulationStatus (Projeto Python typing)
+  inspired-by: MiroFish SimulationStatus (Projeto Python typing), simulation_manager.py, simulation_runner.py
 ---
 
 # Machine States — Pipeline com Estados Explícitos
@@ -31,60 +31,99 @@ a integridade do pipeline de simulação.
 
 ```
                          ┌──────────────┐
-                         │   PENDING    │
-                         │              │
+                         │   CREATED    │
                          └──────┬───────┘
                                 │
                          ┌──────▼───────┐
-                    ┌───►│   RUNNING    │◄──────────┐
-                    │    │              │           │
-                    │    └──────┬───────┘           │
-                    │           │                   │
-                    │    ┌──────▼───────┐           │
-                    │    │  COMPLETED   │           │
-                    │    │              │           │
-                    │    └──────┬───────┘           │
-                    │           │                   │
-                    │    ┌──────▼───────┐           │
-                    │    │  VALIDATED   │           │
-                    │    │              │           │
-                    │    └──────┬───────┘           │
-                    │           │                   │
-              ┌─────┴─────┐    │            ┌──────┴────────┐
-              │  FAILED   │◄───┴────────────┤  ROLLED_BACK  │
-              │           │                 │               │
-              └───────────┘                 └───────────────┘
+                         │   PENDING    │
+                         └──────┬───────┘
+                                │
+                         ┌──────▼───────┐
+                    ┌────┤  PREPARING   │
+                    │    └──────┬───────┘
+                    │           │
+                    │    ┌──────▼───────┐
+                    │    │   STARTING   │
+                    │    └──────┬───────┘
+                    │           │
+              ┌─────┴─────┐   ┌─▼──────────┐  ┌──────────┐
+              │  PAUSED   │◄──┤  RUNNING   ├──► STOPPING │
+              └─────┬─────┘   └──┬───┬─────┘  └────┬─────┘
+                    │            │   │              │
+                    │       ┌────▼───▼┐       ┌────▼─────┐
+                    │       │COMPLETED│       │  STOPPED │
+                    │       └────┬────┘       └──────────┘
+                    │            │
+                    │      ┌─────▼──────┐
+                    │      │  VALIDATED │
+                    │      └─────┬──────┘
+              ┌─────┴─────┐    │          ┌──────────────┐
+              │  FAILED   │◄───┴──────────┤  ROLLED_BACK │
+              └─────┬─────┘               └──────────────┘
+                    │
+              ┌─────▼─────┐
+              │  SKIPPED  │
+              └───────────┘
 ```
 
 ## Estados (Enum)
 
 ```python
 class PipelineState(IntEnum):
-    PENDING     = 0   # Pipeline criado, não iniciado
-    RUNNING     = 1   # Processamento em andamento
-    COMPLETED   = 2   # Fase concluída com sucesso
-    VALIDATED   = 3   # Validado por agente de revisão
-    FAILED      = 4   # Falha no processamento
-    ROLLED_BACK = 5   # Revertido para estado anterior
-    SKIPPED     = 6   # Pulado (não aplicável)
-    BLOCKED     = 7   # Bloqueado por dependência não resolvida
+    CREATED     = 0   # Entidade criada, não preparada
+    PENDING     = 1   # Pipeline criado, não iniciado
+    PREPARING   = 2   # Em preparação (entidades → perfis → config)
+    STARTING    = 3   # Processo sendo iniciado
+    RUNNING     = 4   # Processamento em andamento
+    PAUSED      = 5   # Temporariamente suspenso
+    STOPPING    = 6   # Parada graceful em andamento
+    COMPLETED   = 7   # Fase concluída com sucesso
+    STOPPED     = 8   # Parado após STOPPING
+    VALIDATED   = 9   # Validado por agente de revisão
+    FAILED      = 10  # Falha no processamento
+    ROLLED_BACK = 11  # Revertido para estado anterior
+    SKIPPED     = 12  # Pulado (não aplicável)
+    BLOCKED     = 13  # Bloqueado por dependência não resolvida
 ```
 
 ## Transições Válidas
 
 | Estado Atual | Próximo Estado | Gatilho |
-|-------------|----------------|---------|
-| `PENDING` | `RUNNING` | `start()` |
+|---|---|---|
+| `CREATED` | `PENDING` | `prepare()` |
+| `PENDING` | `PREPARING` | `start_preparation()` |
+| `PREPARING` | `COMPLETED` | `finish_preparation()` |
+| `PREPARING` | `FAILED` | `fail(error)` |
+| `PREPARING` | `STARTING` | `start_process()` |
+| `STARTING` | `RUNNING` | `process_ready()` |
+| `STARTING` | `FAILED` | `fail(error)` (init failed) |
+| `RUNNING` | `PAUSED` | `pause()` |
+| `RUNNING` | `STOPPING` | `stop()` |
 | `RUNNING` | `COMPLETED` | `complete()` |
 | `RUNNING` | `FAILED` | `fail(error)` |
+| `PAUSED` | `RUNNING` | `resume()` |
+| `PAUSED` | `STOPPING` | `stop()` |
+| `STOPPING` | `STOPPED` | `stopped()` |
+| `STOPPING` | `FAILED` | `fail(error)` (stop failed) |
 | `COMPLETED` | `VALIDATED` | `validate()` |
-| `COMPLETED` | `FAILED` | `fail(error)` (validação falhou) |
+| `COMPLETED` | `FAILED` | `fail(error)` (validation failed) |
 | `FAILED` | `RUNNING` | `retry()` |
 | `FAILED` | `ROLLED_BACK` | `rollback()` |
-| `VALIDATED` | `RUNNING` | `revise()` (revisão necessária) |
+| `VALIDATED` | `RUNNING` | `revise()` (revision needed) |
 | `RUNNING` | `BLOCKED` | `block(dependency)` |
 | `BLOCKED` | `RUNNING` | `unblock()` |
 | Qualquer | `SKIPPED` | `skip(reason)` |
+
+## Comparação com MiroFish-Offline
+
+| Estado P3 | Origem | Descrição no MiroFish |
+|---|---|---|
+| CREATED | SimulationStatus | Project created, preparation pending |
+| PREPARING | SimulationManager | Entity reading → profile gen → config gen |
+| STARTING | RunnerStatus | Subprocess being initialized |
+| PAUSED | RunnerStatus | Simulation temporarily suspended |
+| STOPPING | RunnerStatus | Graceful shutdown in progress |
+| STOPPED | RunnerStatus | Process terminated cleanly |
 
 ## Persistência
 
@@ -145,7 +184,7 @@ CREATE TABLE pipeline_states (
 ## Comandos
 
 | Comando | Descrição |
-|---------|-----------|
+|---|---|
 | `/state status` | Mostra estado atual do pipeline |
 | `/state log` | Histórico de transições |
 | `/state advance <phase> [state]` | Avança manualmente um estado |

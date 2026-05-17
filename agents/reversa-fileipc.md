@@ -7,11 +7,11 @@ description: >
 role: communication
 model: big-pickle
 tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - sequential-thinking
+  read: true
+  write: true
+  glob: true
+  bash: true
+  sequential_thinking: true
 ---
 
 # Agente Reversa File IPC
@@ -88,3 +88,43 @@ cmd_id = client.send_command("analyze_file", {"target": "src/"})
 response = client.wait_response(cmd_id, timeout=300)
 # Resultado assíncrono integrado ao pipeline
 ```
+
+## Extensões P12 (Refinamento de Protocolo)
+
+Este agente foi refinado com a implementação rica do `simulation_ipc.py` do MiroFish-Offline:
+
+### Novos Tipos de Comando
+
+- `INTERVIEW` — Entrevistar um agente específico
+- `BATCH_INTERVIEW` — Entrevista em lote
+- `CLOSE_ENV` — Fechar ambiente de simulação
+- `CUSTOM` — Comando genérico para uso fora de simulação
+
+### Server Mode
+
+Além do Client, o P12 introduz o `IPCServer` que:
+
+- Faz polling do diretório `commands/` ordenado por mtime
+- Executa comandos e retorna respostas em `responses/`
+- Mantém `env_status.json` para heartbeat
+- Suporta start/stop explícito
+
+### Polling com Timeout
+
+- Timeout configurável por comando
+- Poll interval ajustável
+- TimeoutError com limpeza automática
+
+### Batch Operations
+
+- `BATCH_INTERVIEW` processa múltiplas entrevistas em uma chamada
+- Útil para pipelines multi-etapa
+
+### Caminhos Atualizados
+
+| Recurso | Caminho Antigo | Caminho Novo |
+|---|---|---|
+| Skill | `skills/file-ipc/` | `skills/fs-ipc/` |
+| Script | `skills/file-ipc/scripts/ipc_client.py` | `skills/fs-ipc/scripts/ipc_client.py` |
+| Protocolo | `skills/file-ipc/references/protocol.md` | `skills/fs-ipc/references/protocol.md` |
+| Comando | `/fileipc` | `/fs-ipc` |

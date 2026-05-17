@@ -379,7 +379,7 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
       const toolName = input.tool
       if (!toolName) return
       // Store start time for latency tracking
-      ;(state as any).
+      if (!(state as any)._toolTimings) (state as any)._toolTimings = {}
       ;(state as any)._toolTimings[toolName] = Date.now()
     },
 

@@ -13,14 +13,14 @@ compatibility: opencode
 allowed-tools: Read, Grep, Glob, Bash, Write
 metadata:
   author: Reversa Engine (padrão MiroFish-Offline OASIS)
-  version: "1.0.0"
+  version: "2.0.0"
   domain: simulation
   triggers: perfil, persona, profile, oasis, agente simulado, simulação
   role: generator
   scope: simulation
   output-format: json
   related-skills: code-graphrag, hybrid-graph-retrieval
-  inspired-by: MiroFish-Offline oasis_profile_generator.py, simulation_config_generator.py
+  inspired-by: MiroFish-Offline oasis_profile_generator.py, simulation_config_generator.py (AgentActivityConfig)
 ---
 
 # OASIS Profile Generator — Personas de Agente a partir de Grafos
@@ -54,8 +54,23 @@ Cada perfil gerado contém:
 | `mbti` | string | Tipo Myers-Briggs | LLM inferido |
 | `topics` | string[] | Tópicos de especialidade | Arestas + LLM |
 | `speaking_style` | string | Estilo de fala característico | LLM |
+| `activity_config` | object | AgentActivityConfig — nível de atividade, horários, viés, influência | LLM + tipo da entidade |
 | `twitter_behavior` | object | Comportamento no Twitter | Config + LLM |
 | `reddit_behavior` | object | Comportamento no Reddit | Config + LLM |
+
+#### Subcampos de `activity_config` (AgentActivityConfig)
+
+| Campo | Tipo | Descrição | Origem |
+|-------|------|-----------|--------|
+| `activity_level` | float (0.0-1.0) | Nível geral de atividade | LLM + tipo da entidade |
+| `posts_per_hour` | float | Posts criados por hora | LLM + regra por tipo |
+| `comments_per_hour` | float | Comentários por hora | LLM + regra por tipo |
+| `active_hours` | int[] | Horas do dia ativo (0-23) | Tipo da entidade + heurística |
+| `response_delay_min` | int | Atraso mínimo (min simulados) | LLM + tipo |
+| `response_delay_max` | int | Atraso máximo (min simulados) | LLM + tipo |
+| `sentiment_bias` | float (-1.0 a 1.0) | Viés de sentimento | LLM inferido |
+| `stance` | string | Posição sobre tema central | LLM + arestas |
+| `influence_weight` | float (0.0-3.0) | Peso de influência social | Tipo da entidade |
 
 ## Quando Usar
 
@@ -105,6 +120,17 @@ Gere um JSON com os campos:
 - mbti: um dos 16 tipos MBTI mais adequado
 - topics: lista de 3-5 tópicos de especialidade
 - speaking_style: descrição do estilo de fala (formal, casual, técnico, etc.)
+- activity_config: {
+    activity_level: float 0.0-1.0 (nível geral de atividade),
+    posts_per_hour: float (média de posts por hora),
+    comments_per_hour: float (média de comentários por hora),
+    active_hours: [int 0-23] (horas do dia em que o agente está ativo),
+    response_delay_min: int (atraso mínimo em minutos simulados),
+    response_delay_max: int (atraso máximo em minutos simulados),
+    sentiment_bias: float -1.0 a 1.0 (viés negativo/positivo),
+    stance: "supportive"|"critical"|"neutral"|"curious"|"dismissive",
+    influence_weight: float 0.0-3.0 (peso de influência social)
+  }
 - twitter_behavior: {
     post_frequency: "alta"|"media"|"baixa",
     content_types: ["opiniao", "compartilhamento", "pergunta", ...],
@@ -127,6 +153,85 @@ Gere um JSON com os campos:
 | JSON | Reddit / uso geral | Lista de objetos completos |
 | CSV | Twitter (requerido pelo OASIS) | Campos achatados |
 
+## Tipos de Entidade e Regras de Atividade
+
+Os valores de `activity_config` seguem regras heurísticas por tipo de entidade, derivadas do
+`BRAZIL_TIMEZONE_CONFIG` do MiroFish-Offline. O LLM pode ajustar dentro das faixas abaixo:
+
+| Tipo | activity_level | posts_per_hour | active_hours | influence_weight | response_delay |
+|------|---------------|----------------|--------------|-----------------|----------------|
+| University/Official | 0.1-0.3 | 0.1 | 9-17 | 3.0 | 60-240 min |
+| MediaOutlet | 0.4-0.6 | 0.8 | 7-23 | 2.5 | 5-30 min |
+| Professor/Expert | 0.4-0.6 | 0.3 | 8-21 | 2.0 | 15-90 min |
+| Student | 0.6-0.9 | 0.6 | 8-13, 18-23 | 0.8 | 1-15 min |
+| Alumni | 0.4-0.6 | 0.4 | 12-13, 19-23 | 1.0 | 5-30 min |
+| Person/Default | 0.5-0.8 | 0.5 | 9-13, 18-23 | 1.0 | 2-20 min |
+
+### Lógica de Aplicação
+
+1. **Identifique o tipo** da entidade no grafo (label do nó)
+2. **Use a faixa heurística** como seed para o prompt do LLM
+3. **Deixe o LLM ajustar** o valor exato dentro da faixa com base no contexto
+4. **Fallback**: se o tipo não estiver na tabela, use `Person/Default`
+
+## Dual-format Output
+
+O OASIS Profile Generator pode exportar no formato nativo do MiroFish-Offline
+(Twitter CSV) ou no formato completo com todos os campos.
+
+### JSON (Full Detail)
+
+Recomendado para o ecossistema OpenCode. Contém todos os campos incluindo
+`activity_config` com seus 9 subcampos.
+
+```json
+{
+  "name": "João Silva",
+  "bio": "...",
+  "persona": "...",
+  "interests": ["..."],
+  "mbti": "ENFP",
+  "topics": ["..."],
+  "speaking_style": "casual",
+  "activity_config": {
+    "activity_level": 0.8,
+    "posts_per_hour": 1.2,
+    "comments_per_hour": 2.5,
+    "active_hours": [18, 19, 20, 21, 22, 23],
+    "response_delay_min": 1,
+    "response_delay_max": 15,
+    "sentiment_bias": 0.3,
+    "stance": "supportive",
+    "influence_weight": 0.8
+  },
+  "twitter_behavior": { ... },
+  "reddit_behavior": { ... }
+}
+```
+
+### CSV (Twitter-optimized)
+
+Formato achatado requerido pelo pipeline Twitter do OASIS original.
+Campos comuns + `activity_config` são convertidos em colunas planas.
+
+| Coluna | Origem |
+|--------|--------|
+| `name`, `bio` | Perfil |
+| `mbti` | Perfil |
+| `persona` | Perfil |
+| `speaking_style` | Perfil |
+| `interests` | Perfil (join por pipe `\|`) |
+| `topics` | Perfil (join por pipe `\|`) |
+| `activity_level` | `activity_config.activity_level` |
+| `posts_per_hour` | `activity_config.posts_per_hour` |
+| `comments_per_hour` | `activity_config.comments_per_hour` |
+| `active_hours` | `activity_config.active_hours` (join por pipe) |
+| `sentiment_bias` | `activity_config.sentiment_bias` |
+| `stance` | `activity_config.stance` |
+| `influence_weight` | `activity_config.influence_weight` |
+
+Use `--format csv` para gerar CSV e `--format json` (padrão) para JSON completo.
+
 ## Melhorias em Relação ao Original
 
 | Aspecto | Original (MiroFish-Offline) | Melhoria (OpenCode) |
@@ -136,7 +241,11 @@ Gere um JSON com os campos:
 | Validação | Básica (try/except) | Schema validation pós-geração |
 | Extensibilidade | Apenas OASIS | Templates customizáveis por domínio |
 | Fallback | Sem LLM → perfil vazio | Fallback com regras heurísticas |
-| Rastreabilidade | Nenhuma | 🟡 INFERIDO / 🟢 CONFIRMADO por campo |
+| Rastreabilidade | Nenhuma | INFERIDO / CONFIRMADO por campo |
+| AgentActivityConfig | Inline fixo | 9 subcampos gerados por LLM + tipo da entidade |
+| Regras por tipo | Apenas entidade genérica | 6 tipos (University, Media, Professor, Student, Alumni, Default) |
+| Dual-format | CSV apenas (Twitter) | JSON (full detail) + CSV (Twitter-optimized) |
+| Horários ativos | Fixo (CHINA_TIMEZONE) | Adaptável por tipo + heurística (BRAZIL_TIMEZONE) |
 
 ## Prompt Templates Customizáveis
 

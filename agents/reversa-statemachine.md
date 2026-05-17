@@ -7,11 +7,11 @@ description: >
 role: orchestration
 model: big-pickle
 tools:
-  - Read
-  - Write
-  - Bash
-  - Sqlite
-  - sequential-thinking
+  read: true
+  write: true
+  bash: true
+  sqlite: true
+  sequential_thinking: true
 ---
 
 # Agente Reversa State Machine

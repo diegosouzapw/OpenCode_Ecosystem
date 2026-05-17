@@ -11,13 +11,13 @@ compatibility: opencode
 allowed-tools: Read, Grep, Glob, Bash, Write, Sqlite
 metadata:
   author: Reversa Engine (padrão MiroFish-Offline graph_memory_updater.py)
-  version: "1.0.0"
+  version: "2.0.0"
   domain: pipeline
-  triggers: memory, memória, update, atualizar, activity, atividade, agente, simulação
+  triggers: memory, memória, update, atualizar, activity, atividade, agente, simulação, lifecycle, integração
   role: pipeline
   scope: realtime
   output-format: json
-  related-skills: graph-builder-pipeline, entity-ner-reader, code-graphrag, machine-states
+  related-skills: graph-builder-pipeline, entity-ner-reader, code-graphrag, machine-states, process-lifecycle, fs-ipc
   inspired-by: MiroFish-Offline GraphMemoryUpdater (graph_memory_updater.py)
 ---
 
@@ -68,6 +68,81 @@ Gerenciador de múltiplos updaters (um por simulação):
 - `stop_updater(simulation_id)`
 - `stop_all()` — cleanup global
 - `get_all_stats()` — métricas de todas as simulações
+
+## Integração com Process Lifecycle (P11)
+
+O GraphMemoryUpdater pode ser integrado diretamente com o `ProcessRunner` (P11)
+para monitorar ações de agentes diretamente dos logs do processo.
+
+### Ciclo de Vida Coordenado
+
+```
+ProcessRunner.start() 
+  → init_subprocess() 
+  → GraphMemoryManager.create_updater(sim_id, graph_id, storage)
+  → updater.start_worker()
+
+ProcessRunner._monitor()
+  → A cada iteração: ler actions.jsonl
+  → Para cada ação: updater.add_activity(activity)
+  → Em simulation_end: platform_completed = True
+  → Se ambas plataformas completas: updater.stop()
+
+ProcessRunner.stop()
+  → updater.stop()  # Flush + parada graceful
+  → updater.cleanup()
+```
+
+### Método integrate_with_runner()
+
+```python
+@classmethod
+def integrate_with_runner(cls, process_id: str, graph_id: str, storage):
+    """
+    Integra memory updater com processo gerenciado pelo ProcessRunner (P11).
+    
+    Args:
+        process_id: ID do processo (mesmo usado no ProcessRunner)
+        graph_id: ID do grafo de destino
+        storage: Instância de GraphStorage
+    
+    Returns:
+        simulation_id (str): ID para referência
+    """
+    # 1. Cria updater para o processo
+    # 2. Registra callback no ProcessRunner para cada ação detectada
+    # 3. Liga STOP do updater ao STOP do processo
+    # 4. Retorna simulation_id
+```
+
+### Ciclo de Vida Agora:
+
+| Fase | P10 (GraphMemoryUpdater) | P11 (ProcessRunner) |
+|---|---|---|
+| INIT | create_updater(sim_id, graph_id) | ProcessRunner.start(id, cmd) |
+| WORKER START | worker thread inicia | monitor thread inicia |
+| PROCESSAMENTO | add_activity() → buffer → batch → graph | parse log → detect actions |
+| PLATFORM END | platform_completed | detecta simulation_end |
+| ALL COMPLETE | stop_updater() | COMPLETED status |
+| FORCE STOP | stop_updater() | STOP sequence |
+| CLEANUP | stop_all() | cleanup_all() |
+
+## Métricas Agregadas (P10 + P11)
+
+Quando integrado com P11, as seguintes métricas estão disponíveis:
+
+| Métrica | Fonte | Descrição |
+|---|---|---|
+| total_activities | P10 | Atividades enfileiradas |
+| batches_sent | P10 | Lotes enviados ao grafo |
+| failed_count | P10 | Atividades com falha |
+| skipped_count | P10 | Ações DO_NOTHING ignoradas |
+| current_round | P11 | Rodada atual da simulação |
+| total_rounds | P11 | Total de rodadas |
+| progress_percent | P11 | Progresso geral |
+| twitter_actions_count | P11 | Ações no Twitter |
+| reddit_actions_count | P11 | Ações no Reddit |
+| runner_status | P11 | Estado do processo |
 
 ## Ações Suportadas
 
@@ -132,6 +207,27 @@ python scripts/memory_updater.py stop --simulation <sim_id>
 - Envia atividades restantes na queue e buffers
 - Para a worker thread
 - Loga estatísticas finais
+
+### Integrar com P11 (Process Lifecycle)
+
+```
+python scripts/memory_updater.py integrate --process <process_id> --graph <graph_id>
+```
+
+1. Cria GraphMemoryUpdater
+2. Registra no ProcessRunner como callback de ações
+3. Liga stop_updater() ao stop do processo
+4. Retorna simulation_id para consulta
+
+### Consultar Métricas Agregadas
+
+```
+python scripts/memory_updater.py stats --simulation <sim_id>
+```
+
+1. Coleta métricas do P10 (total_activities, batches_sent, etc.)
+2. Coleta métricas do P11 (current_round, progress, etc.)
+3. Retorna relatório combinado
 
 ## Escala de Confiança
 

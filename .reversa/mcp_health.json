@@ -1,0 +1,217 @@
+{
+  "timestamp": "2026-05-17T05:27:36.357250",
+  "summary": {
+    "active": 22,
+    "remote": 2,
+    "unknown": 0,
+    "failed": 17,
+    "total": 41
+  },
+  "details": {
+    "biomcp": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "biothings": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "chrome-devtools": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\chrome-devtools-mcp\r"
+    },
+    "code-runner": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-server-code-runner\r"
+    },
+    "context7": {
+      "type": "remote",
+      "ok": true,
+      "detail": "HTTP (OpenCode managed)"
+    },
+    "decisionnode": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\decide-mcp\r"
+    },
+    "diff": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-server-diff-typescript\r"
+    },
+    "fetch": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-fetch-server\r"
+    },
+    "gget": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "gh_grep": {
+      "type": "remote",
+      "ok": true,
+      "detail": "HTTP (OpenCode managed)"
+    },
+    "maswos-juridico": {
+      "type": "file",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\.config\\opencode\\skills/maswos-v5-nexus/servers/juridico_server.py"
+    },
+    "maswos-mcp": {
+      "type": "file",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\.config\\opencode\\skills/maswos-v5-nexus/servers/maswos_server.py"
+    },
+    "maswos-rag": {
+      "type": "file",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\.config\\opencode\\skills/maswos-v5-nexus/servers/rag_server.py"
+    },
+    "mcp-python-interpreter": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\mcp-python-interpreter.exe"
+    },
+    "mcp-server-commands": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-server-commands\r"
+    },
+    "mem0-mcp": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mem0-mcp\r"
+    },
+    "node-sandbox": {
+      "type": "npm_global",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\node-code-sandbox-mcp\r"
+    },
+    "opengenes": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "pdf": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\pdf-mcp-server\r"
+    },
+    "run-python": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "self-healer": {
+      "type": "file",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\.config\\opencode\\nexus/mcp_self_healer.py"
+    },
+    "shell-server": {
+      "type": "uvx",
+      "ok": true,
+      "detail": "uvx available"
+    },
+    "sqlite": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-server-sqlite\r"
+    },
+    "websearch": {
+      "type": "binary",
+      "ok": true,
+      "detail": "C:\\Users\\marce\\AppData\\Roaming\\npm\\mcp-fetch-server\r"
+    },
+    "astronomy-oracle": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "desktop-commander": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "eslint": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "filesystem": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "flowzap-mcp": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "github": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "hacker-news": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "memory": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "mermaid": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "newsmcp": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "playwright": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "puppeteer": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "scihub": {
+      "type": "python_module",
+      "ok": false,
+      "detail": "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModu"
+    },
+    "sequential-thinking": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "time": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "wikipedia": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    },
+    "youtube-transcript": {
+      "type": "error",
+      "ok": false,
+      "detail": "[WinError 2] O sistema não pode encontrar o arquivo especificado"
+    }
+  }
+}
