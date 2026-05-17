@@ -33,6 +33,13 @@ temp/
 *.tmp
 *.log
 
+# Arquivos temporários do pytest (AppData/Temp)
+pytest-alt/
+pytest-*/
+**/pytest-alt/
+**/pytest-*/
+UsersmarceAppDataLocalTemp*/
+
 # Artefatos de sessão
 .opencodeignore
 smart-title.jsonc
