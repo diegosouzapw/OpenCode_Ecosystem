@@ -37,55 +37,55 @@
 
   <rect width="800" height="650" fill="url(#bg)" rx="8"/>
 
-  <text x="400" y="36" text-anchor="middle" fill="#3fb950" font-size="16" font-weight="bold">Ciclo de Autocura (Self-Healing Loop) v4.2</text>
+  <text x="400" y="36" text-anchor="middle" fill="#3fb950" font-size="16" font-weight="bold">Ciclo de Autocura (Self-Healing Loop) v4.2.1</text>
   <text x="400" y="54" text-anchor="middle" fill="#8b949e" font-size="10">MCP self-healer · Monitoramento · Diagnóstico · Reparo Automático · CJK Zero-Tolerance</text>
-
+ 
   <!-- Center: Health Monitor -->
   <circle cx="400" cy="330" r="60" fill="url(#g1)" opacity="0.15" stroke="#3fb950" stroke-width="2"/>
   <circle cx="400" cy="330" r="40" fill="url(#g1)" opacity="0.3"/>
   <text x="400" y="324" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="bold">Health</text>
   <text x="400" y="340" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="bold">Monitor</text>
   <text x="400" y="356" text-anchor="middle" fill="#8b949e" font-size="8">verde: 100%</text>
-
+ 
   <!-- Phase 1: Monitor -->
   <rect x="290" y="80" width="220" height="50" rx="10" fill="url(#g1)" opacity="0.8" filter="url(#shadow)"/>
   <text x="400" y="104" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">1. MONITORAR</text>
   <text x="400" y="120" text-anchor="middle" fill="#c9d1d9" font-size="9">Varredura contínua do ecossistema</text>
   <line x1="400" y1="130" x2="400" y2="170" stroke="#3fb950" stroke-width="2" marker-end="url(#arw)"/>
-
+ 
   <!-- Phase 2: Detect -->
   <rect x="560" y="170" width="220" height="50" rx="10" fill="url(#g2)" opacity="0.8" filter="url(#shadow)"/>
   <text x="670" y="194" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">2. DETECTAR</text>
   <text x="670" y="210" text-anchor="middle" fill="#c9d1d9" font-size="9">Anomalias: CJK, syntax, oversize</text>
   <line x1="555" y1="195" x2="530" y2="195" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
-
+ 
   <!-- Phase 3: Diagnose -->
   <rect x="560" y="310" width="220" height="50" rx="10" fill="url(#g3)" opacity="0.8" filter="url(#shadow)"/>
   <text x="670" y="334" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">3. DIAGNOSTICAR</text>
   <text x="670" y="350" text-anchor="middle" fill="#c9d1d9" font-size="9">Classificação por severidade</text>
   <line x1="555" y1="335" x2="530" y2="335" stroke="#d29922" stroke-width="2" marker-end="url(#arw)"/>
-
+ 
   <!-- Phase 4: Repair -->
   <rect x="560" y="450" width="220" height="50" rx="10" fill="url(#g4)" opacity="0.8" filter="url(#shadow)"/>
   <text x="670" y="474" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">4. REPARAR</text>
   <text x="670" y="490" text-anchor="middle" fill="#c9d1d9" font-size="9">Correção automática</text>
   <line x1="555" y1="475" x2="530" y2="475" stroke="#f85149" stroke-width="2" marker-end="url(#arw)"/>
-
+ 
   <!-- Phase 5: Verify -->
   <rect x="290" y="540" width="220" height="50" rx="10" fill="url(#g5)" opacity="0.8" filter="url(#shadow)"/>
   <text x="400" y="564" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">5. VERIFICAR</text>
   <text x="400" y="580" text-anchor="middle" fill="#c9d1d9" font-size="9">Re-varredura pós-reparo</text>
-
+ 
   <!-- Connection lines forming loop -->
   <path d="M510,105 Q760,105 760,170" fill="none" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arw)"/>
   <path d="M760,220 Q760,310 760,310" fill="none" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arw)"/>
   <path d="M760,360 Q760,450 760,450" fill="none" stroke="#d29922" stroke-width="1.5" marker-end="url(#arw)"/>
   <path d="M760,500 Q760,565 510,565" fill="none" stroke="#f85149" stroke-width="1.5" marker-end="url(#arw2)"/>
   <path d="M290,565 Q150,565 150,460 Q150,220 290,220" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arw)"/>
-
+ 
   <!-- Metric boxes -->
   <rect x="30" y="170" width="180" height="80" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="50" y="192" fill="#8b949e" font-size="9" font-weight="bold">Métricas v4.2</text>
+  <text x="50" y="192" fill="#8b949e" font-size="9" font-weight="bold">Métricas v4.2.1</text>
   <circle cx="58" cy="207" r="5" fill="#3fb950"/>
   <text x="70" y="211" fill="#c9d1d9" font-size="9">Skills 104 · 12 categorias</text>
   <circle cx="58" cy="223" r="5" fill="#d29922"/>

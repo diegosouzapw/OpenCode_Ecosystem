@@ -1,9 +1,9 @@
 ---
 name: criador-artigo-ecosystem-bridge
-description: Bridge de integração entre Criador de Artigo v2 e o ecossistema OpenCode. Conecta 17 MCPs + Nexus sync barriers + Manus Evolve ao pipeline MASWOS para entregar manuscrito Qualis A1 100/100.
+description: Bridge de integração entre Criador de Artigo v2 e o ecossistema OpenCode v4.2.1. Conecta 40 MCPs + Nexus sync barriers + Manus Evolve ao pipeline MASWOS para entregar manuscrito Qualis A1 100/100.
 ---
 
-# Criador de Artigo v2 ↔ Ecossistema OpenCode — Bridge de Integração
+# Criador de Artigo v2 ↔ Ecossistema OpenCode v4.2.1 — Bridge de Integração
 
 ## Pipeline Otimizado com MCPs
 
@@ -102,17 +102,17 @@ Cada fase do MASWOS agora integrada com MCPs do ecossistema para eficiência má
 | Agente | MCP/Skill Integrado | Função |
 |--------|---------------------|--------|
 | A0 (Editor-Chefe) | `academic-export-abnt` | Orquestrar exportação nos 3 formatos |
-| A16 (Integração Editorial) | `mcp-pandoc` | Converter MD → PDF via pdflatex |
+| A16 (Integração Editorial) | `mcp-pandoc` | Converter MD → PDF via pdflatex (com `--top-level-division=chapter` para mapear capítulos ABNT) |
 | A16 (Integração Editorial) | `mcp-pandoc` | Converter MD → HTML standalone |
 | A36 (Exportação LaTeX/PDF) | `templates/gerar_template_abnt.py` | Gerar template ABNT DOCX via python-docx |
 | A38 (Montagem Final) | `academic-ml-pipeline` | Validar 7/7 figuras, encoding, paths |
 
 **Formatos Suportados:**
-| Formato | Engine | Configuração ABNT |
-|---------|--------|-------------------|
-| PDF (LaTeX) | pandoc + pdflatex | Times 12pt, margens 3/2cm, espaçamento 1.5, sumário |
-| DOCX | python-docx template | Margens 3/2cm, Times 12pt, 1.5 espaçamento, numeração |
-| HTML | pandoc standalone | CSS ABNT embutido, figuras base64, self-contained |
+| Formato | Engine | Configuração ABNT | Estabilizações de Compilação |
+|---------|--------|-------------------|-----------------------------|
+| PDF (LaTeX) | pandoc + pdflatex | Times 12pt, margens 3/2cm, espaçamento 1.5, sumário | Mapeamento nativo `\chapter`, definição de `\tightlist`, `\headheight=15pt`, paginação `roman/arabic`, e tabelas de 7 colunas autoajustadas via `\scriptsize` + `\tabcolsep=3pt` local |
+| DOCX | python-docx template | Margens 3/2cm, Times 12pt, 1.5 espaçamento, numeração | Formatação de tabelas e grids nativos |
+| HTML | pandoc standalone | CSS ABNT embutido, figuras base64, self-contained | Estilos CSS responsivos para tabelas |
 
 **Comando de Execução:**
 ```bash

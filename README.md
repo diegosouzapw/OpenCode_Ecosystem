@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.2.0-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
+<img src="https://img.shields.io/badge/OpenCode_Ecosystem-v4.2.1-6366f1?style=for-the-badge&logo=openai&logoColor=white" alt="version"/>
 
-# OpenCode Ecosystem v4.2.0
+# OpenCode Ecosystem v4.2.1
 
 ### Arquitetura Multiagente Evolutiva + Simulação MiroFish/BettaFish + PhD Auditor
 
@@ -20,7 +20,7 @@
 
 <br/>
 
-> **Versão:** 4.2.0 · **Autor:** Reversa Framework v1.2.22 + Nexus PhD Strategist · **Atualizado:** 2026-05-17  
+> **Versão:** 4.2.1 · **Autor:** Reversa Framework v1.2.22 + Nexus PhD Strategist · **Atualizado:** 2026-05-21  
 > **Classificação:** Arquitetura Multiagente + MiroFish/BettaFish + PhD Auditor · **Modelo:** `opencode/big-pickle` (200K ctx, 128K out)
 
 </div>
@@ -65,7 +65,7 @@ O **OpenCode Ecosystem** é uma plataforma de inteligência artificial multiagen
 
 ## Diagramas Técnicos — 7 SVGs
 
-O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SVG interativos** localizados em `diagrams/`. Cada SVG é gerado e mantido automaticamente pelo pipeline de engenharia reversa (Reversa Framework v1.2.22) e reflete o estado real do ecossistema em produção.
+O OpenCode Ecosystem v4.2.1 documenta sua arquitetura por meio de **7 diagramas SVG interativos** localizados em `diagrams/`. Cada SVG é gerado e mantido automaticamente pelo pipeline de engenharia reversa (Reversa Framework v1.2.22) e reflete o estado real do ecossistema em produção.
 
 ### Por que SVG e não PNG/Mermaid?
 
@@ -82,9 +82,9 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 1 — `architecture-overview.svg`
 
-<img src="diagrams/architecture-overview.svg" alt="Arquitetura Geral v4.2" width="100%"/>
+<img src="diagrams/architecture-overview.svg" alt="Arquitetura Geral v4.2.1" width="100%"/>
 
-**Aplicação:** Mapa mestre do ecossistema. Apresenta as **6 camadas arquiteturais** (L1-Infra → L6-Orquestração) com contagens reais de todos os componentes v4.2.
+**Aplicação:** Mapa mestre do ecossistema. Apresenta as **6 camadas arquiteturais** (L1-Infra → L6-Orquestração) com contagens reais de todos os componentes v4.2.1.
 
 **Processos representados:**
 - Fluxo descendente de camadas: Orquestração → Agentes → MCP → Skills → Dados → Infra
@@ -100,7 +100,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 2 — `agent-orchestration.svg`
 
-<img src="diagrams/agent-orchestration.svg" alt="Orquestração de Agentes v4.2" width="100%"/>
+<img src="diagrams/agent-orchestration.svg" alt="Orquestração de Agentes v4.2.1" width="100%"/>
 
 **Aplicação:** Documenta o padrão hierarchical multi-agent com ReAct loop e AutoEvolve.
 
@@ -117,7 +117,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 3 — `academic-pipeline.svg`
 
-<img src="diagrams/academic-pipeline.svg" alt="Pipeline Acadêmico MASWOS v4.2" width="100%"/>
+<img src="diagrams/academic-pipeline.svg" alt="Pipeline Acadêmico MASWOS v4.2.1" width="100%"/>
 
 **Aplicação:** Visualiza o pipeline MASWOS de 8 estágios para produção de artigos Qualis A1.
 
@@ -136,7 +136,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 4 — `mcp-architecture.svg`
 
-<img src="diagrams/mcp-architecture.svg" alt="Arquitetura MCP v4.2" width="100%"/>
+<img src="diagrams/mcp-architecture.svg" alt="Arquitetura MCP v4.2.1" width="100%"/>
 
 **Aplicação:** Documenta a implementação do protocolo MCP (Anthropic, 2024) com 40 servidores.
 
@@ -152,7 +152,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 5 — `rag-strategies.svg`
 
-<img src="diagrams/rag-strategies.svg" alt="9 Estratégias RAG v4.2" width="100%"/>
+<img src="diagrams/rag-strategies.svg" alt="9 Estratégias RAG v4.2.1" width="100%"/>
 
 **Aplicação:** Catálogo das 9 estratégias RAG implementadas no servidor `maswos-rag`.
 
@@ -176,7 +176,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### SVG 6 — `self-healing.svg`
 
-<img src="diagrams/self-healing.svg" alt="Ciclo de Autocura v4.2" width="100%"/>
+<img src="diagrams/self-healing.svg" alt="Ciclo de Autocura v4.2.1" width="100%"/>
 
 **Aplicação:** Visualiza o ciclo contínuo de saúde e reparo automático do ecossistema.
 
@@ -187,17 +187,17 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 4. **REPARAR** — correção automática: remove CJK, corrige frontmatter, progressive disclosure
 5. **VERIFICAR** — re-varredura pós-reparo para confirmar resolução
 
-**Métricas v4.2:** 104 skills · 12 categorias · 40 MCPs ativos · CJK leaks = 0 (zero-tolerance)
+**Métricas v4.2.1:** 104 skills · 12 categorias · 40 MCPs ativos · CJK leaks = 0 (zero-tolerance)
 
 **Diferença vs similares:** AutoGen e CrewAI não possuem monitoramento de saúde do ecossistema. O OpenCode implementa um **MCP dedicado (`self-healer`) + script Python (`self_healer.py`)** que opera de forma autônoma, detectando e corrigindo problemas sem intervenção humana.
 
 ---
 
-### SVG 7 — `mirofish-phd-auditor.svg` *(NOVO v4.2)*
+### SVG 7 — `mirofish-phd-auditor.svg` *(NOVO v4.2.1)*
 
 <img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%"/>
 
-**Aplicação:** Documenta o pipeline P14-P18 completo — a camada de simulação multiagente com rigor científico Qualis A1 — exclusiva do OpenCode Ecosystem v4.2.
+**Aplicação:** Documenta o pipeline P14-P18 completo — a camada de simulação multiagente com rigor científico Qualis A1 — exclusiva do OpenCode Ecosystem v4.2.1.
 
 **Processos representados:**
 
@@ -225,7 +225,7 @@ O OpenCode Ecosystem v4.2 documenta sua arquitetura por meio de **7 diagramas SV
 
 ### Por que o OpenCode tem vantagem sobre similares?
 
-| Capacidade | OpenCode Ecosystem v4.2 | LangChain | AutoGen | CrewAI | Cursor/Copilot |
+| Capacidade | OpenCode Ecosystem v4.2.1 | LangChain | AutoGen | CrewAI | Cursor/Copilot |
 |-----------|------------------------|-----------|---------|--------|----------------|
 | Agentes especializados | **125** | Configurável | Configurável | ~10-20 | Não |
 | Pipeline acadêmico Qualis A1 | **✅ 8 estágios** | ❌ | ❌ | ❌ | ❌ |
@@ -267,15 +267,13 @@ O ecossistema é estruturado em **6 camadas arquiteturais hierárquicas**, do ru
 
 O ecossistema integra pipeline completo de simulação multiagente adaptado do **MiroFish** (61K ⭐, swarm intelligence) e **BettaFish** (40.9K ⭐, análise multiagente), com rigor acadêmico do **nexus-phd-strategist**:
 
-### Pipeline P14-P18
+### Pipeline P1-P18 (18 Padrões Arquiteturais)
 
-| Fase | Componente | Origem | O que faz |
-|------|-----------|--------|-----------|
-| P14 | Agent Forum | BettaFish ForumEngine | Debate multiagente · 38 raciocínios · OASIS |
-| P15 | DocIR | BettaFish ReportEngine | 50 métricas World Bank/WHO/FAO/UNESCO |
-| P16 | ANP | BettaFish QueryEngine | Ponderação ANP multi-critério · Qualis score |
-| P17 | Meta-Writer | DeerFlow/IMRAD | Síntese → LaTeX · TSAC anti-AI · 87 banidas |
-| P18 | PhD Auditor | nexus-phd-strategist | NashSolver · Cohen · Bonferroni · QualisA1Auditor |
+| Faixa | Padrões | O que faz |
+|-------|---------|-----------|
+| **P1-P9** | Entity NER · Hybrid Graph · Graph Builder · Ontology · OASIS Profile · Synthesis · Swarm Review · Code GraphRAG · Machine States | Infraestrutura MiroFish (grafos, entidades, ontologia, estados) |
+| **P10-P13** | Graph Memory Updater · Process Lifecycle · FS-IPC · Config Generator | Runtime & Configuração (BRAZIL_TIMEZONE UTC-3) |
+| **P14-P18** | Agent Forum · Document IR · ANP · MiddlewareChain · PhD Auditor | Agentes, Debate & Auditoria Qualis A1 |
 
 ### 38 Tipos de Raciocínio + 10 Estratégias de Teoria dos Jogos
 
@@ -586,15 +584,16 @@ Scout → Archaeologist → Detective → Architect → Writer → Reviewer
 5. **Manus Evolve** — Engine autônoma que aprende de ciclos anteriores e grava novas skills em `evolution/`.
 6. **Auditoria Qualis A1** — 10 critérios ponderados + banca de 5 revisores + 4 orientadores, loopback iterativo até score ≥ 95/100.
 7. **DecisionNode** — Registro de decisões arquiteturais com busca semântica via embeddings (Ollama), prevenindo duplicação e mantendo histórico de depreciação.
+8. **Compilação e Estabilização PDF/LaTeX** — Correção estrutural de numeração ABNT (mapeamento nativo para `\chapter` via `--top-level-division=chapter`), tratamento de exceções de layout (`\tightlist` via `\providecommand`, altura de cabeçalho `\headheight=15pt` e prevenção de colisões de hyperlinks via roman/arabic), e tabelas multidimensionais de 7 colunas autoajustadas via `\scriptsize` + `\tabcolsep=3pt` local.
 
 ---
 
 <div align="center">
 
-**OpenCode Ecosystem v4.2.0**
+**OpenCode Ecosystem v4.2.1**
 
 125 agentes · 40 MCPs · 104 skills · 38 raciocínios · MiroFish/BettaFish · PhD Auditor · 81 arqs Quantum
 
-*Documentação atualizada automaticamente — 2026-05-17 · BRAZIL_TIMEZONE UTC-3*
+*Documentação atualizada automaticamente — 2026-05-21 · BRAZIL_TIMEZONE UTC-3*
 
 </div>

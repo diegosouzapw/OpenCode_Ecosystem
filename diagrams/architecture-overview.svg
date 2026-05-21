@@ -46,7 +46,7 @@
   <!-- Title -->
   <rect x="0" y="0" width="1200" height="56" fill="url(#hdr)" rx="8"/>
   <rect x="0" y="40" width="1200" height="16" fill="url(#hdr)"/>
-  <text x="600" y="36" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Arquitetura do OpenCode Ecosystem v4.2 — 6 Camadas + MiroFish/BettaFish</text>
+  <text x="600" y="36" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Arquitetura do OpenCode Ecosystem v4.2.1 — 6 Camadas + MiroFish/BettaFish</text>
 
   <!-- Layer 6 - Orchestration -->
   <rect x="30" y="70" width="1140" height="110" rx="6" fill="url(#l6)" opacity="0.15" filter="url(#shadow)"/>
@@ -255,5 +255,5 @@
   <text x="420" y="884" fill="#8b949e" font-size="9">104 Skills</text>
   <text x="580" y="884" fill="#8b949e" font-size="9">38 Tipos Raciocínio</text>
   <text x="790" y="884" fill="#8b949e" font-size="9">81 arqs Quantum</text>
-  <text x="990" y="884" fill="#8b949e" font-size="9">v4.2 · 200K ctx</text>
+  <text x="990" y="884" fill="#8b949e" font-size="9">v4.2.1 · 200K ctx</text>
 </svg>

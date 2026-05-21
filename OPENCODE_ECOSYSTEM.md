@@ -1,6 +1,6 @@
 ---
 title: "OpenCode Ecosystem — Documentação Técnica da Arquitetura"
-version: "4.2.0"
+version: "4.2.1"
 agent_count: 125
 mcp_count: 40
 skill_count: 104
@@ -13,12 +13,12 @@ di_migration: "Fases 1-7 ✅"
 container_services: 11
 commands_bridge: 14
 ts_plugins_bridge: 3
-last_updated: "2026-05-17"
+last_updated: "2026-05-21"
 classification: "Arquitetura de Agentes, MCPs e Skills com DI + MiroFish/BettaFish + PhD Auditor"
 author: "Reversa Framework v1.2.22 + Nexus PhD Strategist"
 ---
 
-# OpenCode Ecosystem v4.2.0
+# OpenCode Ecosystem v4.2.1
 
 O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao OpenCode (OpenAI Codex CLI), composta por **125 agentes**, **40 servidores MCP**, **104 skills especializadas** (12 categorias), **11 serviços em Container DI** e aproximadamente **114.000 linhas de código Python**. O ecossistema operacionaliza produção acadêmica Qualis A1, pesquisa científica autônoma, simulação MiroFish/BettaFish com 38 raciocínios + Teoria dos Jogos, computação quântica (81 arqs, 89.52% acc) e engenharia reversa de sistemas legados — tudo orquestrado por um Container central de Injeção de Dependência.
 
@@ -26,7 +26,7 @@ O **OpenCode Ecosystem** é uma arquitetura multiagente evolutiva integrada ao O
 
 ---
 
-## Diagramas Técnicos — 7 SVGs (v4.2)
+## Diagramas Técnicos — 7 SVGs (v4.2.1)
 
 O ecossistema documenta sua arquitetura por meio de **7 diagramas SVG** em `diagrams/`, gerados e mantidos pelo Reversa Framework v1.2.22. SVGs são preferidos sobre PNG/Mermaid por oferecerem escalabilidade vetorial infinita, gradientes, glassmorphism e atualização programática via texto puro.
 
@@ -34,7 +34,7 @@ O ecossistema documenta sua arquitetura por meio de **7 diagramas SVG** em `diag
 |---|---------|-----------|------------------|
 | 1 | `architecture-overview.svg` | Mapa mestre 6 camadas | L1-Infra → L6-Orquestração · 125 ag · 40 MCPs · 104 skills |
 | 2 | `agent-orchestration.svg` | Hierarquia multiagente | ReAct loop · AutoEvolve PLAN→EVOLVE · MiroFish P14-P18 |
-| 3 | `academic-pipeline.svg` | MASWOS v4.2 | 8 estágios · 49 agentes · loopback score ≥ 95/100 |
+| 3 | `academic-pipeline.svg` | MASWOS v4.2.1 | 8 estágios · 49 agentes · loopback score ≥ 95/100 |
 | 4 | `mcp-architecture.svg` | Protocolo MCP | 40 servidores · Client-Host-Server · lazy init |
 | 5 | `rag-strategies.svg` | 9 estratégias RAG | Vanilla→HyDE · Adaptive auto-select · Graph+Vector |
 | 6 | `self-healing.svg` | Autocura autônoma | Monitor→Detectar→Diagnosticar→Reparar→Verificar |
@@ -44,7 +44,7 @@ O ecossistema documenta sua arquitetura por meio de **7 diagramas SVG** em `diag
 
 <img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%" style="max-width: 900px; border-radius: 8px; margin: 16px 0;"/>
 
-Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complexo do ecossistema:
+Este diagrama é exclusivo do OpenCode v4.2.1 e representa o pipeline mais complexo do ecossistema:
 
 **Pipeline P14 → P18:**
 - **P14 Agent Forum (OASIS):** 125 agentes debatem com 38 tipos de raciocínio estruturado em 8 perfis de debate. O OASIS modera automaticamente os turnos e grava o grafo de argumentos.
@@ -66,7 +66,7 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 
 ### Vantagens do OpenCode sobre Similares
 
-| Capacidade | OpenCode v4.2 | LangChain | AutoGen | CrewAI | Cursor |
+| Capacidade | OpenCode v4.2.1 | LangChain | AutoGen | CrewAI | Cursor |
 |-----------|--------------|-----------|---------|--------|--------|
 | Agentes especializados | **125** | Config. | Config. | ~20 | — |
 | Pipeline Qualis A1 (8 estágios) | **✅** | ❌ | ❌ | ❌ | ❌ |
@@ -88,7 +88,7 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        OPENCODE ECOSYSTEM v4.0.0                       │
+│                     OPENCODE ECOSYSTEM v4.2.1 — P1-P18 Pipeline                 │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │                       CAMADA DE ORQUESTRAÇÃO                     │  │
@@ -100,7 +100,7 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                    CAMADA DE AGENTES (118)                       │  │
+│  │                    CAMADA DE AGENTES (125)                       │  │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │  │
 │  │  │  Core    │ │ Criação  │ │ SEEKER   │ │   Utilitários    │   │  │
 │  │  │ (56 ag.) │ │ (49 ag.) │ │ (12 ag.) │ │   (1 corretor)   │   │  │
@@ -108,7 +108,7 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                    CAMADA MCP (38 servidores)                     │  │
+│  │                    CAMADA MCP (40 servidores)                     │  │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │  │
 │  │  │ Core(12) │ │  Busca   │ │ Código   │ │   Domínio        │   │  │
 │  │  │ FS,DB,.. │ │ Web,Git  │ │ Runner,..│ │   Jurídico,RAG   │   │  │
@@ -116,19 +116,27 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                    CAMADA DE SKILLS (45)                         │  │
+│  │                    CAMADA DE SKILLS (104)                         │  │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │  │
 │  │  │ Sistema  │ │Jurídico  │ │ Pesquisa │ │   Domínio        │   │  │
-│  │  │ (6)      │ │ (7)      │ │ (3)      │ │   (29 outros)    │   │  │
+│  │  │ (6)      │ │ (7)      │ │ (3)      │ │   (88 outros)    │   │  │
 │  │  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │                  CAMADA DE DADOS E MEMÓRIA                       │  │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │  │
-│  │  │ Quantum  │ │ DOCLing  │ │ Mem0     │ │   DecisionNode   │   │  │
-│  │  │(40 arqs) │ │(100+ py) │ │(SQLite)  │ │   (SQLite+Gemini)|   │  │
+│  │  │ Quantum  │ │ DOCLing  │ │ Mem0     │ │ DecisionNode   │   │  │
+│  │  │(81 arqs) │ │(100+ py) │ │(SQLite)  │ │ (SQLite+Gemini)│   │  │
 │  │  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │           CAMADA DE SIMULAÇÃO (MiroFish/BettaFish P1-P18)        │  │
+│  │  P1-P9: Entity NER → Graph → OASIS → Ontology → Swarm Review    │  │
+│  │  P10-P13: Memory Updater → Process Lifecycle → IPC → Config      │  │
+│  │  P14-P18: Agent Forum → DocIR → ANP → MiddlewareChain → PhD     │  │
+│  │  38 raciocínios · 10 game theory · BRAZIL_TIMEZONE (UTC-3)      │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
@@ -146,26 +154,49 @@ Este diagrama é exclusivo do OpenCode v4.2 e representa o pipeline mais complex
 
 ---
 
-## 🐟 MiroFish/BettaFish & PhD Auditor (P14-P18) — NOVO em v4.2.0
+## 🐟 MiroFish/BettaFish & PhD Auditor (P1-P18) — NOVO em v4.2.1
 
-O ecossistema agora integra componentes adaptados do **MiroFish** (61K ⭐, swarm intelligence engine), **BettaFish** (40.9K ⭐, multi-agent analysis) e **nexus-phd-strategist** (Qualis A1), formando um pipeline completo de simulação multiagente com rigor acadêmico:
+O ecossistema integra **18 padrões arquiteturais** (P1-P18) extraídos do MiroFish (61K ⭐), BettaFish (40.9K ⭐) e DeerFlow, formando um pipeline completo de simulação multiagente com rigor acadêmico:
 
-<img src="diagrams/mirofish-phd-auditor.svg" alt="Pipeline MiroFish/BettaFish + PhD Auditor P14-P18" width="100%" style="max-width: 900px; border-radius: 8px; margin: 16px 0;"/>
+### Mapeamento Completo P1-P18
 
-| Componente | Origem | Classe/Engine | Status |
-|-----------|--------|--------------|--------|
-| **OASIS Profile Gen** | MiroFish OASIS | `generate_heuristic_profile()` + `validate_profiles_with_rigor()` | ✅ |
-| **Agent Forum (P14)** | BettaFish ForumEngine | `Forum(agents, debate_profile)` + 38 raciocínios | ✅ |
-| **Debate Strategies (P17)** | Axelrod + Game Theory | `ReasoningType` (38 tipos), `DEBATE_PROFILES` (8), `TOURNAMENT_STRATEGIES` (6) | ✅ |
-| **Config Generator** | MiroFish SimConfig | `ConfigGenerator` + `BRAZIL_TIMEZONE` (UTC-3) | ✅ |
-| **Graph Builder** | MiroFish Graph Engine | `GraphBuilderService` + `audit_graph_quality()` | ✅ |
-| **Report Agent (P15)** | BettaFish ReportEngine | `ReportAgent(graph_id, requirement)` + `IMRADFormatter` | ✅ |
-| **NashSolver (P18)** | nexus-phd-strategist | Nash N×M, Dilema do Prisioneiro, Cooperação δ | ✅ |
-| **StatisticalRigor (P18)** | nexus-phd-strategist | Cohen's d, Bonferroni, Power Analysis (1-β) | ✅ |
-| **QualisA1Auditor (P18)** | nexus-phd-strategist | Score 0-100 (7 critérios), recomendações | ✅ |
-| **SensitivityAnalyzer (P18)** | nexus-phd-strategist | Elasticidade, parâmetros críticos, robustez | ✅ |
+| Padrão | Nome | Origem | Status |
+|--------|------|--------|--------|
+| **P1** | Entity NER Reader | MiroFish EntityReader | ✅ |
+| **P2** | Hybrid Graph Retrieval | MiroFish GraphTools | ✅ |
+| **P3** | Graph Builder Pipeline | MiroFish GraphBuilder | ✅ |
+| **P4** | Ontology Generator | MiroFish OntologyGen | ✅ |
+| **P5** | OASIS Profile Gen | MiroFish OASIS | ✅ |
+| **P6** | Synthesis Agent | BettaFish ReportAgent | ✅ |
+| **P7** | Swarm Review | OASIS Multi-Agent | ✅ |
+| **P8** | Code GraphRAG | MiroFish Zep Cloud | ✅ |
+| **P9** | Machine States | MiroFish SimulationStatus | ✅ |
+| **P10** | Graph Memory Updater | MiroFish Real-time | ✅ |
+| **P11** | Process Lifecycle | MiroFish SimulationRunner | ✅ |
+| **P12** | Filesystem IPC | MiroFish IPC Refined | ✅ |
+| **P13** | Config Generator | MiroFish SimConfig + BRAZIL_TIMEZONE | ✅ |
+| **P14** | Agent Forum | BettaFish ForumEngine | ✅ |
+| **P15** | Document IR | BettaFish ReportEngine | ✅ |
+| **P16** | Agent Node Pipeline | BettaFish QueryEngine | ✅ |
+| **P17** | MiddlewareChain + Reducers | DeerFlow 11-Layer | ✅ |
+| **P18** | PhD Auditor | nexus-phd-strategist | ✅ |
+| **P19** | MiroFish Sync Agent | GitHub API + Reversa Scout | ✅ |
 
-### 38 Tipos de Raciocínio + Teoria dos Jogos
+### Sincronização Upstream (P19)
+
+O **MiroFish Sync Agent** mantém o ecossistema sincronizado com os repositórios upstream:
+
+```
+Monitor (GitHub API) → Diff (commits novos) → Extract (Reversa Scout) → Integrate (P19+) → Register (code-graph)
+```
+
+| Repositório | Last Synced Commit | Status |
+|------------|-------------------|--------|
+| 666ghj/MiroFish | `fa0f651` (2026-04-02) | ✅ Sincronizado |
+| 666ghj/BettaFish | `53f60e8` (2026-05-08) | ✅ Sincronizado |
+| bytedance/deer-flow | baseline | 🔍 Monitorando |
+
+Comando: `/mirofish-sync [--dry-run] [--force] [--repo=all]`
 
 | Categoria | Quantidade | Destaque |
 |-----------|-----------|----------|
@@ -198,7 +229,7 @@ Fontes: World Bank, WHO, FAO, UNESCO, SIPRI, ILO, ITU, OECD, IBGE, INPE
 | **L6 — Orquestração** | Coordenação meta-granular entre pipelines | Nexus NMA v6.2, Reversa, Evo Loop | Python, JSON-RPC |
 | **L5 — Agentes** | Execução especializada de tarefas | 125 agentes em 5 categorias | OpenCode Subagents |
 | **L4 — MCP** | Protocolo de comunicação ferramenta-agente | 40 servidores (38 local, 2 remote) | MCP SDK, stdio |
-| **L3 — Skills** | Diretrizes de domínio para agentes | 104 skills (P14-P18, oasis-profile-gen, debate-strategies, phd-auditor) | YAML, Markdown |
+| **L3 — Skills** | Diretrizes de domínio para agentes | 104 skills (P1-P18: Entity NER→PhD Auditor, oasis-profile-gen, debate-strategies, phd-auditor) | YAML, Markdown |
 | **L2 — Dados** | Armazenamento, memória e persistência | SQLite, Mem0, Quantum, DOCLing | SQLite, Ollama, PDF |
 | **L1 — Infra** | Runtime e sistema de arquivos | Node.js 25, Bun 1.3, Python 3.12 | Win32, Docker |
 | **DI** | Injeção de Dependência transversal | Container 11 serviços, 2 bridges (CommandRegistry + PluginManager) | Python, Container pattern |
@@ -253,7 +284,7 @@ Container (singleton)
 
 ---
 
-## MCP Servers (17 configurados)
+## MCP Servers (40 configurados)
 
 ### Core — Infraestrutura (12)
 
@@ -342,7 +373,7 @@ O servidor `maswos-rag` expõe 9 estratégias de Retrieval-Augmented Generation,
 
 ---
 
-## Skills Registry (74 skills)
+## Skills Registry (104 skills)
 
 ### Por Categoria
 
@@ -537,7 +568,7 @@ O **Manus Evolve** (plugin `manus-evolve.ts`) executa um ciclo PLAN→ACT→REFL
 
 ---
 
-## Módulo Quantum (40 arquivos .py, ~92 arquivos totais)
+## Módulo Quantum (81 arquivos .py/ref, ~120 arquivos totais)
 
 Infraestrutura de computação quântica aplicada com resultados validados experimentalmente.
 
@@ -779,7 +810,7 @@ Sistema de memória técnica integrado ao ecossistema para registrar, buscar sem
 
 | Métrica | Valor |
 |---------|:-----:|
-| Total de servidores | 17 (15 local + 2 remote) |
+| Total de servidores | 40 (38 local + 2 remote) |
 | Core/Infraestrutura | 6 |
 | Busca e Pesquisa | 3 |
 | Execução e Análise | 3 |
@@ -969,9 +1000,9 @@ O ciclo **Monitorar → Detectar → Diagnosticar → Reparar → Verificar** op
 | Componente | Quantidade | Saúde |
 |------------|:----------:|:-----:|
 | Componentes DI | 3 (command_registry, bridge, container) | 🟢 |
-| MCPs | 17 servidores | 🟢 |
-| Skills | 74 SKILL.md | 🟢 |
-| Agentes | 118 | 🟢 |
+| MCPs | 40 servidores | 🟢 |
+| Skills | 104 SKILL.md | 🟢 |
+| Agentes | 125 | 🟢 |
 | Scripts Python | 427+ | 🟢 |
 | Plugins | 12 | 🟢 |
 | Comandos | 14 | 🟢 |
@@ -997,9 +1028,11 @@ O ciclo **Monitorar → Detectar → Diagnosticar → Reparar → Verificar** op
 
 6. **DecisionNode**: registro de decisões arquiteturais com busca semântica via embeddings Ollama, prevenindo duplicação e mantendo histórico de depreciação.
 
+7. **Compilação e Estabilização PDF/LaTeX**: Correção estrutural de numeração ABNT (mapeamento nativo para `\chapter` via `--top-level-division=chapter`), tratamento de exceções de layout (`\tightlist` via `\providecommand`, altura de cabeçalho `\headheight=15pt` e prevenção de colisões de hyperlinks via roman/arabic), e tabelas multidimensionais de 7 colunas autoajustadas via `\scriptsize` + `\tabcolsep=3pt` local.
+
 ---
 
-> **OpenCode Ecosystem v4.1.0** — 118 agentes · 17 MCPs · 74 skills · 11 Container DI services · ~109.660 linhas Python
+> **OpenCode Ecosystem v4.2.1** — 125 agentes · 40 MCPs · 104 skills · 11 Container DI services · ~114.000 linhas Python
 >
-> Documentação gerada pelo Reversa Framework v1.2.22 em 2026-05-16.
+> Documentação gerada pelo Reversa Framework v1.2.22 em 2026-05-21.
 > Repositório: `C:\Users\marce\.config\opencode` | Modelo: `opencode/big-pickle`
