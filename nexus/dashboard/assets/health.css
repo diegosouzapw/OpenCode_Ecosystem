@@ -1,0 +1,33 @@
+.page-header { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+#health-table .status-cell { font-family: var(--font-mono); }
+#health-table .status-cell .dot { margin-right: 4px; }
+
+#health-table tr.row-ok    .dot { color: var(--success); }
+#health-table tr.row-warn  .dot { color: var(--warning); }
+#health-table tr.row-crit  .dot { color: var(--danger); }
+#health-table tr.row-off   .dot { color: var(--text-muted); }
+
+#health-table tr.selected { background: var(--bg-elevated); }
+#health-table tr { cursor: pointer; }
+#health-table td:nth-child(4) { font-family: var(--font-mono); text-align: right; }
+#health-table td:nth-child(2) { color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+
+#refresh-indicator.paused {
+  color: var(--warning);
+}
+
+.alerts-bar > div { flex: 1; }
+
+#detail-content pre {
+  font-size: 12px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+#detail-content .conn-row {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}

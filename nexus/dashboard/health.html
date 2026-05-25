@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus › Health</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/health.css">
+</head>
+<body>
+  <div class="layout">
+    <div id="nav"></div>
+
+    <main class="main">
+      <header class="page-header flex between">
+        <div>
+          <h1 style="margin:0">Health</h1>
+          <small class="muted">Saúde ao vivo dos provedores LLM e MCPs locais. Atualização SSE a cada 5s.</small>
+        </div>
+        <div class="flex">
+          <span class="muted">Auto-refresh:</span>
+          <strong id="refresh-indicator" class="status-ok">● live</strong>
+          <button id="pause-btn" class="btn">Pause</button>
+          <small class="muted">Last:</small>
+          <span id="last-update" class="muted">—</span>
+        </div>
+      </header>
+
+      <!-- === Filters bar === -->
+      <section class="filters panel" style="margin-top:16px">
+        <div class="flex" style="gap:12px; flex-wrap:wrap">
+          <label class="flex" style="gap:4px">
+            <span class="muted">Type:</span>
+            <select id="filter-type" class="btn">
+              <option value="">all</option>
+              <option value="prov">prov (provider)</option>
+              <option value="mcp">mcp (MCP)</option>
+            </select>
+          </label>
+
+          <label class="flex" style="gap:4px">
+            <span class="muted">Status:</span>
+            <select id="filter-status" class="btn">
+              <option value="">all</option>
+              <option value="ok">ok</option>
+              <option value="warn">warn</option>
+              <option value="crit">crit</option>
+              <option value="off">off</option>
+            </select>
+          </label>
+
+          <label class="flex" style="gap:4px">
+            <input type="checkbox" id="filter-problems">
+            <span class="muted">Problems only (warn+crit+off)</span>
+          </label>
+
+          <div class="spacer"></div>
+
+          <label class="flex" style="gap:4px">
+            <span class="muted">Sort by:</span>
+            <select id="sort-by" class="btn">
+              <option value="score-asc">score (worst first)</option>
+              <option value="score-desc">score (best first)</option>
+              <option value="name">name</option>
+              <option value="type">type, then score</option>
+              <option value="last_check">last check</option>
+            </select>
+          </label>
+
+          <small class="muted" id="row-count">—</small>
+        </div>
+      </section>
+
+      <!-- === Connection banner === -->
+      <div id="conn-banner" class="hidden" style="margin-top:12px"></div>
+
+      <!-- === Health table === -->
+      <section class="table-section" style="margin-top:16px">
+        <table class="table" id="health-table">
+          <thead>
+            <tr>
+              <th style="width:80px">STATUS</th>
+              <th style="width:60px">TYPE</th>
+              <th>NAME</th>
+              <th style="width:70px; text-align:right">SCORE</th>
+              <th>DETAILS</th>
+              <th style="width:120px">LAST CHECK</th>
+            </tr>
+          </thead>
+          <tbody id="health-tbody">
+            <tr><td colspan="6" class="muted" style="text-align:center; padding:24px">
+              Connecting to /api/health/stream…
+            </td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- === Bottom alerts banner === -->
+      <footer class="alerts-bar flex between" style="margin-top:16px; padding:12px;
+              background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px">
+        <div>
+          <strong id="crit-count" class="status-err">0 CRITICAL</strong>:
+          <span id="crit-list" class="muted">—</span>
+        </div>
+        <div>
+          <strong id="warn-count" class="status-warn">0 WARNING</strong>:
+          <span id="warn-list" class="muted">—</span>
+        </div>
+        <div>
+          <strong id="ok-count" class="status-ok">0 OK</strong>
+          <button id="toggle-problems" class="btn" style="margin-left:8px">Show only ⚠</button>
+        </div>
+      </footer>
+
+      <!-- === Detail drawer (inline, below table) === -->
+      <section id="detail-drawer" class="panel hidden" style="margin-top:16px">
+        <div class="flex between">
+          <h2 style="margin:0" id="detail-title">—</h2>
+          <button class="btn" id="detail-close">✕</button>
+        </div>
+        <div id="detail-content" style="margin-top:8px"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/api.js"></script>
+  <script src="/assets/nav.js"></script>
+  <script src="/assets/health.js"></script>
+  <script>renderNav("health");</script>
+</body>
+</html>
