@@ -378,6 +378,93 @@ O comando `/auto` ativa o agente `openagent` com acesso a **todos** os MCPs simu
 
 ---
 
+## Roteamento OmniRoute por sessão (`/route`)
+
+Quando o ecossistema está configurado com o gateway OmniRoute (veja [GETTING_STARTED.md §5](GETTING_STARTED.md#5-opcional-habilitar-omniroute-como-gateway-de-llms)), o comando `/route` permite escolher a estratégia de roteamento que será aplicada às próximas chamadas de pipeline.
+
+### Conceito
+
+O OmniRoute mantém vários **combos** — políticas de roteamento que combinam múltiplos modelos com regras específicas (priority list, weighted, cost-optimized, etc.). Ao executar `/route <slug>`, todas as chamadas subsequentes da sessão OpenCode passam por aquela política.
+
+### Exemplo: rodar `/artigo` em modo econômico
+
+```
+> /route cost-optimized
+Active combo: cost-optimized
+(applies to subsequent /artigo, /reversa, /quantum, etc.)
+
+> /artigo "Brazilian fintech regulation 2020-2026"
+[SEEKER: 12 agents searching arXiv, OpenAlex, ...]
+[MASWOS: 49 agents writing — cost-optimized routes to cheapest healthy provider]
+...
+```
+
+### Exemplo: forçar família Claude para revisão
+
+```
+> /route claude-primary
+Active combo: claude-primary
+
+> /artigo "VQC noise mitigation for quantum machine learning"
+[MASWOS: 49 agents writing ...]
+[Banca: 5 reviewers using Claude Opus 4.7 (combo-forced)]
+[Orientadores: 4 PhDs using Claude Opus 4.7]
+[Score Qualis: 96/100]
+```
+
+### Exemplo: cadeia gratuita (zero custo garantido)
+
+```
+> /route auto-free
+Active combo: auto-free
+(restricted to Gemini Free, GLM Free, Groq, Cerebras, Pollinations, big-pickle)
+
+> /quantum HAM10000_VQC_50qubit
+[Quantum pipeline runs on free-tier only]
+```
+
+### Limpar combo (voltar ao roteamento direto)
+
+```
+> /route none
+OMNIROUTE_COMBO cleared. Subsequent calls use direct model routing.
+```
+
+### Listar combos disponíveis
+
+```
+> /route --list
+Current combo: auto
+OmniRoute tenant: https://or.cx.com.br
+
+Available combos:
+  - auto
+  - auto-free
+  - claude-primary
+  - cost-optimized
+  - gpt-primary
+  - none
+  - priority
+  - p2c
+  - round-robin
+  - weighted
+
+Usage: /route <slug>  |  /route none  |  /route --list
+```
+
+### Erros comuns
+
+| Erro | Causa | Solução |
+|---|---|---|
+| `OmniRoute not active` | `OMNIROUTE_BASE_URL` não setada | Ativar OmniRoute via GETTING_STARTED.md §5 |
+| `Unknown combo 'X'` | Slug não está em `ECOSYSTEM_OMNIROUTE_COMBO_SLUGS` | `/route --list` para ver combos válidos |
+
+### Persistência
+
+O combo é **scope de sessão**. Fechar e reabrir o OpenCode CLI volta ao default (sem combo). Para persistir, exportar `OMNIROUTE_COMBO=<slug>` no `~/.bashrc` ou `.zshrc`.
+
+---
+
 ## Próximos Passos
 
 - Consulte o [GLOSSARY.md](GLOSSARY.md) para definições de termos técnicos
