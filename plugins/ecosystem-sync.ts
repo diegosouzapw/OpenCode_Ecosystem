@@ -3,13 +3,14 @@
 // Modelo: big-pickle (OpenCode Zen)
 
 /**
- * ECOSYSTEM SYNC v3.5 — Transformer Cross-Validation Engine + Token Efficiency
+ * ECOSYSTEM SYNC v3.6 — Transformer Cross-Validation Engine + Token Efficiency + OmniRoute Health
  * Arquitetura unificada que sincroniza MCPs, Skills, Agentes, Plugins e Corretores
  * com precisão estatística, evolução autônoma e correção linguística obrigatória.
- * 
+ *
  * Pipeline: VALIDATE → CROSS-CHECK → CORRECT → SCORE → SYNC → EVOLVE
  * v3.5 additions: token-efficiency, ptbr_corrector, big-pickle model sync
-v3.5.1: Bun -> fs/promises (plugin runtime compat), observability log
+ * v3.5.1: Bun -> fs/promises (plugin runtime compat), observability log
+ * v3.6 additions: OmniRoute health awareness (opt-in via OMNIROUTE_BASE_URL)
  */
 import type { Plugin } from "@opencode-ai/plugin"
 import { readFile, writeFile, mkdir } from "fs/promises"
@@ -39,6 +40,35 @@ interface TokenEfficiencyState {
 
 interface ToolTimings { [key: string]: number }
 
+// === OmniRoute v3.6 — health tracking (opt-in via OMNIROUTE_BASE_URL env) ===
+
+interface OmniRouteProviderHealth {
+  name: string                    // ex: "claude", "openai", "glm"
+  totalConnections: number
+  healthyConnections: number      // testStatus === "active" && isActive
+  circuitBreakerState: "CLOSED" | "OPEN" | "HALF_OPEN" | "UNKNOWN"
+  rateLimitedUntil: string | null // ISO 8601 ou null
+}
+
+interface OmniRouteComboInfo {
+  slug: string
+  displayName: string
+  strategy: string                // "auto", "priority", "weighted", ...
+  memberCount: number
+}
+
+interface OmniRouteSnapshot {
+  enabled: boolean
+  baseURL: string | null
+  providers: Record<string, OmniRouteProviderHealth>
+  combos: OmniRouteComboInfo[]
+  healthyProviderCount: number
+  degradedProviderCount: number
+  activeComboCount: number
+  lastSync: string | null         // ISO 8601 do último fetch bem-sucedido
+  lastError: string | null        // mensagem do último erro de fetch (null se ok)
+}
+
 interface EcosystemState {
   mcps: Record<string, ComponentHealth>
   agents: Record<string, ComponentHealth>
@@ -54,6 +84,7 @@ interface EcosystemState {
   redundancies: string[]
   lastSync: string | null
   version: string
+  omniRoute?: OmniRouteSnapshot   // ← NOVO (opcional, v3.6)
 }
 
 const STATE_FILE = ".evolve/ecosystem-state.json"
@@ -103,13 +134,135 @@ async function loadState(directory: string): Promise<EcosystemState> {
       cjkCorrectorActive: false,
     },
     overallHealth: 0, conflicts: [], redundancies: [], lastSync: null,
-    version: "3.5.0"
+    version: "3.6.0"
   }
 }
 
 async function saveState(directory: string, state: EcosystemState) {
   await mkdir(`${directory}/.evolve`, { recursive: true }).catch(() => {})
   await writeFile(`${directory}/${STATE_FILE}`, JSON.stringify(state, null, 2))
+}
+
+// ============================================================
+// OmniRoute Health Fetcher (v3.6)
+// ============================================================
+
+/**
+ * Reads OMNIROUTE_BASE_URL and OMNIROUTE_API_KEY from process.env.
+ * Returns null if base URL is unset (feature is opt-in).
+ */
+function readOmniRouteEnv(): { baseURL: string; apiKey: string | null } | null {
+  const baseURL = process.env.OMNIROUTE_BASE_URL?.trim();
+  if (!baseURL) return null;
+  const apiKey = process.env.OMNIROUTE_API_KEY?.trim() || null;
+  return { baseURL: baseURL.replace(/\/+$/, ""), apiKey };
+}
+
+/**
+ * One-shot fetch with hard timeout.
+ * Throws AbortError on timeout, network error on bad response.
+ */
+async function fetchWithTimeout(
+  url: string,
+  headers: Record<string, string>,
+  timeoutMs = 3000
+): Promise<any> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const resp = await fetch(url, { headers, signal: ctrl.signal });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${url}`);
+    return await resp.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Fetches /api/providers + /api/combos from OmniRoute and aggregates
+ * into a snapshot. Soft-fails: any error returns an inert snapshot with
+ * lastError populated, so the rest of ecosystem-sync continues.
+ */
+async function fetchOmniRouteHealth(
+  baseURL: string,
+  apiKey: string | null
+): Promise<OmniRouteSnapshot> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "User-Agent": "ecosystem-sync/3.6",
+  };
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+
+  const snapshot: OmniRouteSnapshot = {
+    enabled: true,
+    baseURL,
+    providers: {},
+    combos: [],
+    healthyProviderCount: 0,
+    degradedProviderCount: 0,
+    activeComboCount: 0,
+    lastSync: null,
+    lastError: null,
+  };
+
+  // --- Providers ---
+  try {
+    const providers = await fetchWithTimeout(`${baseURL}/api/providers`, headers);
+    if (Array.isArray(providers)) {
+      for (const p of providers) {
+        if (!p || typeof p.name !== "string") continue;
+        const total = Number(p.totalConnections ?? p.connections?.length ?? 0);
+        const healthy = Number(
+          p.healthyConnections ??
+            (Array.isArray(p.connections)
+              ? p.connections.filter((c: any) => c.isActive && c.testStatus === "active").length
+              : 0)
+        );
+        const cbState = (p.circuitBreakerState ?? "UNKNOWN") as OmniRouteProviderHealth["circuitBreakerState"];
+        snapshot.providers[p.name] = {
+          name: p.name,
+          totalConnections: total,
+          healthyConnections: healthy,
+          circuitBreakerState: ["CLOSED", "OPEN", "HALF_OPEN"].includes(cbState) ? cbState : "UNKNOWN",
+          rateLimitedUntil: p.rateLimitedUntil ?? null,
+        };
+        if (healthy > 0 && cbState !== "OPEN") snapshot.healthyProviderCount++;
+        else snapshot.degradedProviderCount++;
+      }
+    }
+  } catch (err: any) {
+    snapshot.lastError = `providers: ${err?.message ?? String(err)}`;
+    // Não retorna ainda — tenta combos mesmo assim
+  }
+
+  // --- Combos ---
+  try {
+    const combos = await fetchWithTimeout(`${baseURL}/api/combos`, headers);
+    if (Array.isArray(combos)) {
+      for (const c of combos) {
+        if (!c || typeof c.slug !== "string") continue;
+        snapshot.combos.push({
+          slug: c.slug,
+          displayName: String(c.name ?? c.displayName ?? c.slug),
+          strategy: String(c.strategy ?? "unknown"),
+          memberCount: Array.isArray(c.members) ? c.members.length : Number(c.memberCount ?? 0),
+        });
+      }
+      snapshot.activeComboCount = snapshot.combos.length;
+    }
+  } catch (err: any) {
+    const msg = `combos: ${err?.message ?? String(err)}`;
+    snapshot.lastError = snapshot.lastError ? `${snapshot.lastError}; ${msg}` : msg;
+  }
+
+  snapshot.lastSync = new Date().toISOString();
+
+  // Se ambos endpoints falharam, marca como disabled
+  if (snapshot.lastError && Object.keys(snapshot.providers).length === 0 && snapshot.combos.length === 0) {
+    snapshot.enabled = false;
+  }
+
+  return snapshot;
 }
 
 // ============================================================
@@ -246,7 +399,7 @@ function computeOverallHealth(state: EcosystemState): number {
 // ============================================================
 
 export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
-  console.log("[EcosystemSync v3.5] Transformer Engine + Token Efficiency initialized")
+  console.log("[EcosystemSync v3.6] Transformer Engine + Token Efficiency + OmniRoute Health initialized")
 
   let state = await loadState(directory)
 
@@ -336,7 +489,40 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
         state.conflicts = detectConflicts(state.mcps)
         state.overallHealth = computeOverallHealth(state)
         state.lastSync = new Date().toISOString()
-        state.version = "3.5.0"
+        state.version = "3.6.0"
+
+        // === v3.6 — OmniRoute health snapshot (opt-in via OMNIROUTE_BASE_URL) ===
+        const omniEnv = readOmniRouteEnv()
+        if (omniEnv) {
+          try {
+            state.omniRoute = await fetchOmniRouteHealth(omniEnv.baseURL, omniEnv.apiKey)
+            logObservability(directory, "omniroute.health.fetched", {
+              enabled: state.omniRoute.enabled,
+              providerCount: Object.keys(state.omniRoute.providers).length,
+              healthy: state.omniRoute.healthyProviderCount,
+              degraded: state.omniRoute.degradedProviderCount,
+              activeCombos: state.omniRoute.activeComboCount,
+              lastError: state.omniRoute.lastError,
+            })
+          } catch (err: any) {
+            // fetchOmniRouteHealth nunca deveria lançar (soft-fail interno),
+            // mas defesa em profundidade
+            state.omniRoute = {
+              enabled: false,
+              baseURL: omniEnv.baseURL,
+              providers: {},
+              combos: [],
+              healthyProviderCount: 0,
+              degradedProviderCount: 0,
+              activeComboCount: 0,
+              lastSync: null,
+              lastError: `fetch threw: ${err?.message ?? String(err)}`,
+            }
+          }
+        } else {
+          // env não setada — sentinel para o shell.env saber que está disabled
+          state.omniRoute = undefined
+        }
 
         await saveState(directory, state)
 
@@ -350,23 +536,28 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
           matrixEntries: Object.keys(state.crossValidationMatrix).length,
         })
 
+        const omniInfo = state.omniRoute?.enabled
+          ? `${state.omniRoute.healthyProviderCount}/${Object.keys(state.omniRoute.providers).length} providers ✓`
+          : "disabled"
+
         await client.app.log({
           body: {
-            service: "ecosystem-sync-v3.5",
+            service: "ecosystem-sync-v3.6",
             level: "info",
-            message: `Ecosystem health: ${state.overallHealth.toFixed(1)}% | MCPs: ${mcpNames.length} | Agents: ${agentNames.length} | Correctors: ${correctorNames.length} | Conflicts: ${state.conflicts.length} | Token efficiency: ${state.tokenEfficiency.headerCoverage}%`,
+            message: `Ecosystem health: ${state.overallHealth.toFixed(1)}% | MCPs: ${mcpNames.length} | Agents: ${agentNames.length} | Correctors: ${correctorNames.length} | Conflicts: ${state.conflicts.length} | Token: ${state.tokenEfficiency.headerCoverage}% | OmniRoute: ${omniInfo}`,
             extra: {
               health: state.overallHealth,
               conflicts: state.conflicts,
               tokenEfficiency: state.tokenEfficiency,
-              version: "3.5.0",
+              omniRoute: state.omniRoute,
+              version: "3.6.0",
             },
           },
         })
       } catch (err: any) {
         await client.app.log({
           body: {
-            service: "ecosystem-sync-v3.5",
+            service: "ecosystem-sync-v3.6",
             level: "error",
             message: `Validation failed: ${err.message}`,
           },
@@ -463,13 +654,13 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
     const attention = Object.entries(state.mcps).filter(([,h]) => h.score >= 70 && h.score < 85)
       if (critical.length > 0) {
           await client.app.log({
-            body: { service: "ecosystem-sync-v3.5", level: "error",
+            body: { service: "ecosystem-sync-v3.6", level: "error",
               message: `CRITICAL: ${critical.length} MCPs below health threshold (70): ${critical.map(([n]) => n).join(', ')}` }
           })
         }
         if (attention.length > 0) {
           await client.app.log({
-            body: { service: "ecosystem-sync-v3.5", level: "warn",
+            body: { service: "ecosystem-sync-v3.6", level: "warn",
               message: `ATTENTION: ${attention.length} MCPs below attention threshold (85): ${attention.map(([n]) => n).join(', ')}` }
           })
         }
@@ -482,12 +673,16 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
         })
 
         await saveState(directory, state)
-  
+
+        const omniInfo = state.omniRoute?.enabled
+          ? ` | OmniRoute: ${state.omniRoute.healthyProviderCount} healthy, ${state.omniRoute.degradedProviderCount} degraded, ${state.omniRoute.activeComboCount} combos`
+          : ""
+
         await client.app.log({
           body: {
-            service: "ecosystem-sync-v3.5",
+            service: "ecosystem-sync-v3.6",
             level: "info",
-            message: `Session complete. Health: ${state.overallHealth.toFixed(1)}% | MCPs: ${Object.keys(state.mcps).length} active, ${critical.length} critical, ${attention.length} attention | Corretor: ${state.tokenEfficiency.cjkCorrectorActive}`,
+            message: `Session complete. Health: ${state.overallHealth.toFixed(1)}% | MCPs: ${Object.keys(state.mcps).length} active, ${critical.length} critical, ${attention.length} attention | Corretor: ${state.tokenEfficiency.cjkCorrectorActive}${omniInfo}`,
           },
         })
       },
@@ -521,6 +716,32 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
       output.env.ECOSYSTEM_ATTENTION_COUNT = String(Object.values(state.mcps).filter(h => h.score >= 70 && h.score < 85).length)
       output.env.ECOSYSTEM_HEALTH_TREND = state.overallHealth >= 90 ? 'stable' : state.overallHealth >= 70 ? 'degrading' : 'critical'
       output.env.ECOSYSTEM_LAST_SYNC = state.lastSync ?? ''
+
+      // === v3.6 — OmniRoute Health Exports (opt-in via OMNIROUTE_BASE_URL) ===
+      const om = state.omniRoute
+      output.env.ECOSYSTEM_OMNIROUTE_ENABLED = String(om?.enabled === true)
+      output.env.ECOSYSTEM_OMNIROUTE_BASE_URL = om?.baseURL ?? ''
+      output.env.ECOSYSTEM_OMNIROUTE_HEALTHY = String(om?.healthyProviderCount ?? 0)
+      output.env.ECOSYSTEM_OMNIROUTE_DEGRADED = String(om?.degradedProviderCount ?? 0)
+      output.env.ECOSYSTEM_OMNIROUTE_PROVIDER_COUNT = String(Object.keys(om?.providers ?? {}).length)
+      output.env.ECOSYSTEM_OMNIROUTE_ACTIVE_COMBOS = String(om?.activeComboCount ?? 0)
+      output.env.ECOSYSTEM_OMNIROUTE_LAST_SYNC = om?.lastSync ?? ''
+      output.env.ECOSYSTEM_OMNIROUTE_LAST_ERROR = om?.lastError ?? ''
+
+      // Lista de combos disponíveis (CSV de slugs) — útil para o /route command (PR-4)
+      output.env.ECOSYSTEM_OMNIROUTE_COMBO_SLUGS = (om?.combos ?? [])
+        .map(c => c.slug)
+        .join(',')
+
+      // Per-provider scores (mesmo padrão de ECOSYSTEM_MCP_<NAME>_SCORE existente)
+      if (om?.providers) {
+        for (const [pName, pHealth] of Object.entries(om.providers)) {
+          const key = `ECOSYSTEM_OMNIROUTE_PROVIDER_${pName.toUpperCase().replace(/[^A-Z0-9_]/g, '_')}`
+          output.env[key + '_HEALTHY'] = String(pHealth.healthyConnections)
+          output.env[key + '_TOTAL'] = String(pHealth.totalConnections)
+          output.env[key + '_CB'] = pHealth.circuitBreakerState
+        }
+      }
     },
   }
 }
