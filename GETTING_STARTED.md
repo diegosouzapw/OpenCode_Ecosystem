@@ -66,6 +66,58 @@ opencode models
 # O modelo big-pickle deve aparecer na lista
 ```
 
+### 5. (Opcional) Habilitar OmniRoute como gateway de LLMs
+
+O OpenCode Ecosystem opera por padrão com o modelo gratuito `opencode/big-pickle`. Para usuários que querem **resiliência adicional**, **especialização por agente** ou **acesso a 455+ modelos** mantendo a cadeia gratuita, é possível rotear o tráfego LLM através do [**OmniRoute AI Gateway**](https://github.com/diegosouzapw/OmniRoute) — um proxy unificado com 160+ provedores, 14 estratégias de combo e 3 camadas de resiliência.
+
+**Benefícios da ativação:**
+- **Fallback automático** quando `big-pickle` está indisponível (Gemini Free, GLM Free, Groq, Cerebras, Pollinations).
+- **`small_model` barato** para tarefas triviais (títulos, autocomplete) — libera contexto de 200K para os 49 agentes MASWOS.
+- **Auto-Combo de 9 fatores** que escolhe modelo por capacidade (vision, tool-use, JSON mode, thinking, context window).
+- **MCP auto-emit** — adiciona 37 tools extras ao ecossistema sem instalar pacotes locais.
+- **Promessa "Modelo gratuito" preservada** — toda cadeia de fallback é free-tier.
+
+**Como ativar:**
+
+```bash
+# 1. Instalar o plugin OmniRoute
+npm install --prefix ~/.config/opencode @omniroute/opencode-plugin
+
+# 2. Validar saúde do tenant OmniRoute (substitua <BASE_URL> pelo seu)
+bash scripts/check-omniroute-health.sh https://or.cx.com.br
+
+# 3. Aplicar a config OmniRoute
+#    Backup do arquivo atual:
+cp opencode.json opencode.json.bak
+#    Mescla as 41 entradas mcp do original no exemplo:
+jq -s '.[0] * {mcp: .[1].mcp}' opencode.omniroute.json.example opencode.json > opencode.merged.json
+mv opencode.merged.json opencode.json
+
+# 4. Configurar a API key (gerada no dashboard do tenant OmniRoute)
+opencode auth login --provider omniroute
+#    Prompt aceita a API key; grava em ~/.local/share/opencode/auth.json
+```
+
+**Reverter:**
+
+```bash
+mv opencode.json.bak opencode.json
+# (opcional) Remover plugin instalado:
+rm -rf ~/.config/opencode/node_modules/@omniroute
+```
+
+**Verificar:**
+
+```bash
+# Listar modelos disponíveis após ativação
+opencode models | grep -c omniroute
+# Esperado: > 100 entradas (depende do catálogo do tenant)
+```
+
+> **Mantenedor do tenant:** o OmniRoute é open-source. Você pode rodar self-hosted (`http://localhost:20128`) ou usar um tenant cloud. Não há lock-in. Veja [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute) para guia de instalação.
+
+> **Modelo padrão preservado:** se você não executar os passos acima, **nada muda**. O ecossistema continua usando `opencode/big-pickle`.
+
 ---
 
 ## Comandos de Verificação
