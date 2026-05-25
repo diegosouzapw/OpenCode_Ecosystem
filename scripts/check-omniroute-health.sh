@@ -52,7 +52,8 @@ fetch() {
 # --- Check 1: /v1/models ---
 echo -n "[1/4] /v1/models ... "
 if ! MODELS_JSON=$(fetch /v1/models 2>&1); then
-  echo "FAIL — connectivity error ($MODELS_JSON)"
+  ERR_LINE=$(echo "$MODELS_JSON" | head -1)
+  echo "FAIL — connectivity error: $ERR_LINE"
   exit 2
 fi
 MODEL_COUNT=$(echo "$MODELS_JSON" | jq '.data | length')
@@ -90,8 +91,10 @@ fi
 
 # --- Check 4: /api/mcp/stream reachable ---
 echo -n "[4/4] /api/mcp/stream ... "
+AUTH_ARGS=()
+[ -n "$AUTH_HEADER" ] && AUTH_ARGS=(-H "$AUTH_HEADER")
 HTTP_CODE=$(curl -s -o /dev/null --max-time 5 -w "%{http_code}" \
-  ${AUTH_HEADER:+-H "$AUTH_HEADER"} \
+  "${AUTH_ARGS[@]}" \
   "$BASE_URL/api/mcp/stream" 2>/dev/null || echo "000")
 # Anything < 500 is acceptable (4xx is expected without proper handshake)
 if [ "$HTTP_CODE" -lt 500 ] && [ "$HTTP_CODE" != "000" ]; then
