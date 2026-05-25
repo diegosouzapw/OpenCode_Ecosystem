@@ -109,10 +109,15 @@ console.log("Merged. Plugins: " + (merged.plugin || []).length + ", MCP keys: " 
 '
 
 MERGED_PATH="${TARGET_PATH}.merged.tmp"
-if ! node -e "$NODE_SCRIPT" -- "$EXAMPLE_PATH" "$TARGET_PATH" "$MERGED_PATH"; then
-  EXIT_CODE=$?
+# Note: must capture $? BEFORE evaluating an `if !` block — bash resets $?
+# to 0 inside the then-branch of a negated condition.
+set +e
+node -e "$NODE_SCRIPT" -- "$EXAMPLE_PATH" "$TARGET_PATH" "$MERGED_PATH"
+NODE_EXIT=$?
+set -e
+if [ "$NODE_EXIT" -ne 0 ]; then
   rm -f -- "$MERGED_PATH"
-  exit "$EXIT_CODE"
+  exit "$NODE_EXIT"
 fi
 
 mv -- "$MERGED_PATH" "$TARGET_PATH"
