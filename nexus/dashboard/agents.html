@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus › Agents & Models</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/agents.css">
+</head>
+<body>
+  <div class="layout">
+    <div id="nav"></div>
+
+    <main class="main">
+      <header class="page-header flex between">
+        <div>
+          <h1 style="margin:0">Agents &amp; Models</h1>
+          <small class="muted">Gerenciamento de modelos por agente. Mudanças ficam em <code>pending</code> até clicar em Apply.</small>
+        </div>
+        <div class="flex">
+          <label class="muted" style="margin-right:8px">Active combo:</label>
+          <select id="combo-select" class="btn">
+            <option value="">(none)</option>
+            <option value="auto">auto</option>
+            <option value="auto-free">auto-free</option>
+            <!-- populated dynamically -->
+          </select>
+          <button id="combo-set-btn" class="btn primary">Set</button>
+        </div>
+      </header>
+
+      <!-- === Filters === -->
+      <section class="filters panel" style="margin-top:16px">
+        <div class="flex" style="gap:12px; flex-wrap:wrap">
+          <label class="flex" style="gap:4px">
+            <span class="muted">Category:</span>
+            <select id="filter-category" class="btn">
+              <option value="">all</option>
+              <!-- populated -->
+            </select>
+          </label>
+
+          <label class="flex" style="gap:4px">
+            <span class="muted">Model:</span>
+            <select id="filter-model" class="btn">
+              <option value="">all</option>
+              <option value="default">&lt;default&gt;</option>
+              <!-- populated -->
+            </select>
+          </label>
+
+          <label class="flex" style="gap:4px">
+            <input type="checkbox" id="filter-overridden">
+            <span class="muted">Overridden only</span>
+          </label>
+
+          <div class="spacer"></div>
+
+          <label class="flex" style="gap:4px">
+            <span class="muted">Search:</span>
+            <input id="filter-search" type="text" placeholder="agent name…" class="btn"
+                   style="font-family:var(--font-mono); width:180px">
+          </label>
+        </div>
+      </section>
+
+      <!-- === Banner: tenant status === -->
+      <div id="tenant-banner" class="hidden" style="margin-top:12px"></div>
+
+      <!-- === Main table === -->
+      <section class="table-section" style="margin-top:16px">
+        <table class="table" id="agents-table">
+          <thead>
+            <tr>
+              <th style="width:32px"><input type="checkbox" id="select-all"></th>
+              <th>NAME</th>
+              <th>CATEGORY</th>
+              <th>CURRENT MODEL</th>
+              <th>→ NEW</th>
+              <th>COST</th>
+            </tr>
+          </thead>
+          <tbody id="agents-tbody">
+            <tr><td colspan="6" class="muted" style="text-align:center; padding:24px">
+              Loading agents…
+            </td></tr>
+          </tbody>
+        </table>
+
+        <div class="flex between" style="margin-top:12px">
+          <small class="muted" id="pagination-info">—</small>
+          <div class="flex">
+            <button class="btn" id="prev-page">◀ Prev</button>
+            <span id="page-display" class="muted">1 / 1</span>
+            <button class="btn" id="next-page">Next ▶</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- === Action bar (pending + bulk) === -->
+      <footer class="action-bar flex between" style="margin-top:16px; padding:12px;
+              background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px">
+        <div class="flex">
+          <span class="muted">Selected:</span>
+          <strong id="selected-count">0</strong>
+          <select id="bulk-select" class="btn" disabled>
+            <option value="">Bulk assign…</option>
+            <!-- populated -->
+          </select>
+          <button id="bulk-apply-btn" class="btn" disabled>Apply to selection</button>
+        </div>
+
+        <div class="flex">
+          <span class="muted">Pending:</span>
+          <strong id="pending-count">0</strong>
+          <span class="muted">changes</span>
+          <button id="preview-diff-btn" class="btn" disabled>Preview Diff</button>
+          <button id="apply-btn" class="btn primary" disabled>Apply</button>
+          <button id="discard-btn" class="btn danger" disabled>Discard</button>
+        </div>
+      </footer>
+
+      <!-- === Diff preview modal === -->
+      <div id="diff-modal" class="modal hidden">
+        <div class="modal-content panel">
+          <div class="flex between">
+            <h2 style="margin:0">Preview Diff</h2>
+            <button class="btn" id="diff-close-btn">✕</button>
+          </div>
+          <pre id="diff-content" class="mono" style="max-height:60vh; overflow:auto"></pre>
+          <div class="flex between" style="margin-top:12px">
+            <small class="muted">Review carefully. Apply writes to agent files atomically.</small>
+            <div class="flex">
+              <button class="btn" id="diff-cancel-btn">Cancel</button>
+              <button class="btn primary" id="diff-apply-btn">Apply All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- === Scripts === -->
+  <script src="/assets/api.js"></script>
+  <script src="/assets/nav.js"></script>
+  <script src="/assets/agents.js"></script>
+  <script>renderNav("agents");</script>
+</body>
+</html>
