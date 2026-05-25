@@ -1,4 +1,4 @@
-"""dashboard_server.py v2.0 — Dashboard web do ecossistema OpenCode.
+"""dashboard_server.py v3.0 — Dashboard web do ecossistema OpenCode.
 
 Servidor HTTP auto-contido (stdlib apenas) que expoe dados do ecossistema
 como API REST e serve interface web com graficos Chart.js.
@@ -8,11 +8,17 @@ Uso:
     python nexus/dashboard_server.py --porta 9090
     python nexus/dashboard_server.py --gerar-only  # Gera HTML estatico
 
+v3.0 (PR-6): Route dispatch, sidebar nav, asset pipeline, /api/* skeleton, /api/ping.
 v2.0: Graficos de tendencia Chart.js, cards de dominio internacional,
       metricas do extrator de dados publicos e mcp-brasil.
 """
 
-import json, os, re, sys, subprocess
+import importlib.util
+import json
+import os
+import re
+import subprocess
+import sys
 from pathlib import Path
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -22,6 +28,55 @@ CACHE_DIR = WORKSPACE / "cache"
 EVALS_DIR = WORKSPACE / "evals"
 EVOLVE_DIR = WORKSPACE / ".evolve"
 HTML_PATH = Path(__file__).parent / "dashboard" / "index.html"
+
+# === Route dispatch table (v3.0 — PR-6 foundation) ===
+#
+# Key:   URL path (exact for "/", exact for page routes)
+# Value: relative path to HTML file (under nexus/)
+#
+# Add new routes here as PR-7..PR-10 land.
+
+PAGE_ROUTES: dict[str, str] = {
+    "/":           "dashboard/index.html",      # Overview (existing, v2.0)
+    "/agents":     "dashboard/agents.html",     # PR-7 (currently 404)
+    "/health":     "dashboard/health.html",     # PR-8 (currently 404)
+    "/pipelines":  "dashboard/pipelines.html",  # PR-9 (currently 404)
+    "/plugins":    "dashboard/plugins.html",    # PR-10 (currently 404)
+}
+
+# API handlers: key = path prefix, value = callable(self, method, parsed_path, body_or_none)
+# Each entry returns a tuple (status_code: int, payload: dict|str|bytes, content_type: str)
+API_HANDLERS: dict = {
+    # Populated by api_register() from sub-modules.
+    # Foundation only adds /api/ping (see task 6.4).
+}
+
+
+def api_register(prefix: str, handler) -> None:
+    """Register an API handler. Called by sub-modules at import time."""
+    API_HANDLERS[prefix] = handler
+
+
+# === Robust module loader: works whether run as module or script ===
+API_MODULE_DIR = Path(__file__).parent / "api"
+
+
+def _load_api_module(name: str):
+    p = API_MODULE_DIR / f"{name}.py"
+    if not p.exists():
+        return None
+    spec = importlib.util.spec_from_file_location(f"nexus.api.{name}", str(p))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+# === Register API handlers from sub-modules ===
+_ping = _load_api_module("ping")
+if _ping:
+    api_register("/api/ping", _ping.handle_ping)
+else:
+    print("[dashboard] Could not register /api/ping: module not found")
 
 
 def carregar_json(rel_path: str) -> dict | list | None:
@@ -350,484 +405,177 @@ def _descrever_agente(nome: str, tipo: str) -> str:
 
 
 # =============================================================================
-# HTML TEMPLATE COM CHART.JS
-# =============================================================================
-
-HTML_TEMPLATE = r"""<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenCode Ecosystem Dashboard v2</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
-  h1 { color: #58a6ff; font-size: 1.5em; margin-bottom: 5px; }
-  .subtitle { color: #8b949e; font-size: 0.9em; margin-bottom: 20px; }
-  h2 { color: #8b949e; font-size: 1.1em; margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; text-align: center; }
-  .card .value { font-size: 1.8em; font-weight: 600; color: #f0f6fc; }
-  .card .label { font-size: 0.75em; color: #8b949e; margin-top: 4px; }
-  .card .sub { font-size: 0.65em; color: #6e7681; margin-top: 2px; }
-  .card.green .value { color: #3fb950; }
-  .card.red .value { color: #f85149; }
-  .card.yellow .value { color: #d29922; }
-  .card.blue .value { color: #58a6ff; }
-  .card.purple .value { color: #bc8cff; }
-  .card.orange .value { color: #f0883e; }
-
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
-  .chart-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
-  .chart-box h3 { color: #8b949e; font-size: 0.85em; margin-bottom: 10px; text-transform: uppercase; }
-  .chart-box canvas { width: 100% !important; max-height: 250px; }
-
-  table { width: 100%; border-collapse: collapse; margin: 10px 0 20px; font-size: 0.85em; }
-  th { text-align: left; padding: 8px 12px; background: #21262d; color: #8b949e; border-bottom: 1px solid #30363d; }
-  td { padding: 8px 12px; border-bottom: 1px solid #21262d; }
-  tr:hover td { background: #161b22; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 500; }
-  .tag-alta { background: #f8514922; color: #f85149; }
-  .tag-media { background: #d2992222; color: #d29922; }
-  .tag-baixa { background: #58a6ff22; color: #58a6ff; }
-  .tag-success { background: #3fb95022; color: #3fb950; }
-  .tag-info { background: #bc8cff22; color: #bc8cff; }
-  .refresh { text-align: right; margin-bottom: 10px; }
-  .refresh button { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; }
-  .refresh button:hover { background: #30363d; }
-  .timestamp { color: #8b949e; font-size: 0.8em; }
-  .bar-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-  .bar { height: 16px; border-radius: 4px; min-width: 4px; }
-  .bar-green { background: #3fb950; }
-  .bar-yellow { background: #d29922; }
-  .bar-red { background: #f85149; }
-  .bar-blue { background: #58a6ff; }
-  .skill-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin: 12px 0; }
-  .skill-card h3 { color: #58a6ff; font-size: 1em; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .skill-table td:first-child { font-weight: 600; color: #8b949e; width: 160px; }
-  .skill-table td:nth-child(2) { width: 120px; }
-  .skill-table td:nth-child(3) { color: #6e7681; font-size: 0.85em; }
-  .legenda-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; margin: 8px 0; font-size: 0.85em; color: #8b949e; }
-  .legenda-box summary { cursor: pointer; color: #58a6ff; }
-  .legenda-box p { margin: 6px 0; }
-  .swot-box { margin: 8px 0; }
-  .swot-box summary { cursor: pointer; color: #d29922; font-size: 0.85em; }
-  .swot-table { width: 100%; margin: 8px 0; }
-  .swot-table th { width: 140px; padding: 6px 10px; font-size: 0.8em; text-transform: uppercase; }
-  .swot-table td { font-size: 0.82em; padding: 6px 10px; }
-  .swot-forca { background: #3fb95022; color: #3fb950; }
-  .swot-fraqueza { background: #f8514922; color: #f85149; }
-  .swot-oportunidade { background: #58a6ff22; color: #58a6ff; }
-  .swot-ameaca { background: #d2992222; color: #d29922; }
-  details { margin: 4px 0; }
-  summary { padding: 4px 0; }
-  @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 600px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-</style>
-</head>
-<body>
-<div class="refresh">
-  <span class="timestamp" id="ts"></span>
-  <button onclick="carregar()">Atualizar</button>
-</div>
-<h1>&#9670; OpenCode Ecosystem Dashboard v2</h1>
-<div class="subtitle" id="subtitle"></div>
-
-<div class="stats" id="cards"></div>
-
-<div class="charts-grid" id="chartContainer">
-  <div class="chart-box"><h3>Scripts Python</h3><canvas id="chartScripts"></canvas></div>
-  <div class="chart-box"><h3>Linhas de Codigo</h3><canvas id="chartLines"></canvas></div>
-  <div class="chart-box"><h3>Anomalias</h3><canvas id="chartAnomalies"></canvas></div>
-  <div class="chart-box"><h3>Recomendacoes</h3><canvas id="chartRecs"></canvas></div>
-</div>
-
-<div id="tables"></div>
-
-<script>
-// Variaveis globais dos graficos
-let charts = {}
-
-function initChart(canvasId, type, labels, datasets, options) {
-  const ctx = document.getElementById(canvasId)?.getContext('2d')
-  if (!ctx) return null
-  if (charts[canvasId]) { charts[canvasId].destroy() }
-  const cfg = {
-    type: type,
-    data: { labels: labels, datasets: datasets },
-    options: Object.assign({
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { backgroundColor: '#21262d', titleColor: '#f0f6fc', bodyColor: '#c9d1d9', borderColor: '#30363d', borderWidth: 1, cornerRadius: 6 }
-      },
-      scales: {
-        x: { ticks: { color: '#8b949e', maxTicksLimit: 6, font: { size: 10 } }, grid: { color: '#21262d' } },
-        y: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } }
-      }
-    }, options || {})
-  }
-  charts[canvasId] = new Chart(ctx, cfg)
-  return charts[canvasId]
-}
-
-function updateCharts(d) {
-  const snaps = d.snapshots || []
-  if (snaps.length === 0) {
-    document.getElementById('chartContainer').style.display = 'none'
-    return
-  }
-  document.getElementById('chartContainer').style.display = 'grid'
-
-  const labels = snaps.map(s => { const t = s.timestamp || ''; return t.length > 10 ? t.substring(5, 16) : t })
-  const color = (i, max) => {
-    const colors = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#f0883e']
-    return colors[i % colors.length]
-  }
-
-  // Scripts chart
-  const scriptVals = snaps.map(s => s.totals?.scripts ?? 0)
-  initChart('chartScripts', 'line', labels, [{
-    label: 'Scripts', data: scriptVals,
-    borderColor: '#58a6ff', backgroundColor: '#58a6ff22',
-    fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
-    borderWidth: 2
-  }], { plugins: { legend: { display: true, labels: { color: '#8b949e' } } } })
-
-  // Lines chart
-  const linesVals = snaps.map(s => s.totals?.total_lines_py ?? 0)
-  initChart('chartLines', 'line', labels, [{
-    label: 'Linhas', data: linesVals,
-    borderColor: '#3fb950', backgroundColor: '#3fb95022',
-    fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
-    borderWidth: 2
-  }], { plugins: { legend: { display: true, labels: { color: '#8b949e' } } },
-       scales: { y: { ticks: { callback: v => (v/1000).toFixed(1)+'k' } } } })
-
-  // Anomalies chart (bar)
-  const anomVals = snaps.map(s => s.anomalies ?? 0)
-  initChart('chartAnomalies', 'bar', labels, [{
-    label: 'Anomalias', data: anomVals,
-    backgroundColor: anomVals.map(v => v > 0 ? '#f8514977' : '#3fb95077'),
-    borderColor: anomVals.map(v => v > 0 ? '#f85149' : '#3fb950'),
-    borderWidth: 1, borderRadius: 4
-  }], { plugins: { legend: { display: true, labels: { color: '#8b949e' } } } })
-
-  // Recommendations chart (bar)
-  const recsVals = snaps.map(s => s.recommendations ?? 0)
-  initChart('chartRecs', 'bar', labels, [{
-    label: 'Recomendacoes', data: recsVals,
-    backgroundColor: '#d2992277', borderColor: '#d29922',
-    borderWidth: 1, borderRadius: 4
-  }], { plugins: { legend: { display: true, labels: { color: '#8b949e' } } } })
-}
-
-async function carregar() {
-  try {
-    const r = await fetch('/api/dados')
-    const d = await r.json()
-    const h = d.health || {}
-    const ext = d.extrator || {}
-
-    const ts = h.timestamp ? new Date(h.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')
-    document.getElementById('ts').textContent = 'Ultima atualizacao: ' + ts
-    document.getElementById('subtitle').textContent =
-      `Extrator v${ext.verso || '?'} | ${ext.fontes || 0} fontes em ${ext.dominios || 0} dominios` +
-      (ext.tem_internacional ? ' | Inclui FMI, ONU, OCDE, OMS, BRICS' : '')
-
-    // Cards
-    document.getElementById('cards').innerHTML = `
-      <div class="card blue"><div class="value">${h.skills ?? '?'}</div><div class="label">Skills</div></div>
-      <div class="card blue"><div class="value">${h.scripts ?? '?'}</div><div class="label">Scripts Python</div></div>
-      <div class="card blue"><div class="value">${h.plugins ?? '?'}</div><div class="label">Plugins</div></div>
-      <div class="card purple"><div class="value">${h.agents ?? '?'}</div><div class="label">Agentes SEEKER</div></div>
-      <div class="card blue"><div class="value">${(h.total_lines_py ?? 0).toLocaleString()}</div><div class="label">Linhas Python</div></div>
-      <div class="card ${(h.anomalies ?? 0) > 0 ? 'red' : 'green'}"><div class="value">${h.anomalies ?? 0}</div><div class="label">Anomalias</div></div>
-      <div class="card purple"><div class="value">${ext.fontes || 30}</div><div class="label">Fontes Extrator</div></div>
-      <div class="card orange"><div class="value">${ext.dominios || 6}</div><div class="label">Dominios</div></div>
-    `
-
-    // Graficos
-    updateCharts(d)
-
-    // Tabelas
-    let html = ''
-
-    // Rounds
-    if (d.rounds && d.rounds.length > 0) {
-      html += '<h2>Rounds de Evolucao</h2><table><tr><th>Round</th><th>Score</th><th>Acoes</th><th>Padroes</th><th>Timestamp</th></tr>' +
-        d.rounds.map(r => `<tr><td>${r.round}</td><td><div class="tag ${r.score >= 70 ? 'tag-success' : r.score >= 40 ? 'tag-media' : 'tag-alta'}">${r.score}/100</div></td><td>${r.actions}</td><td>${r.skills}</td><td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td></tr>`).join('') +
-        '</table>'
-    }
-
-    // Nexus reports
-    if (d.nexus_reports && d.nexus_reports.length > 0) {
-      html += '<h2>Relatorios Nexus</h2><table><tr><th>Data</th><th>Anomalias</th><th>Fixes</th></tr>' +
-        d.nexus_reports.map(n => `<tr><td>${new Date(n.scanTime).toLocaleString('pt-BR')}</td><td>${n.anomalies}</td><td>${n.fixes}</td></tr>`).join('') +
-        '</table>'
-    }
-
-    // Recommendations
-    if (d.recommendations && d.recommendations.length > 0) {
-      html += '<h2>Recomendacoes</h2><table><tr><th>Area</th><th>Acão</th><th>Impacto</th></tr>' +
-        d.recommendations.map(r => `<tr><td><span class="tag tag-${r.area === 'expansao' ? 'baixa' : 'media'}">${r.area}</span></td><td>${r.acao}</td><td>${r.impacto}</td></tr>`).join('') +
-        '</table>'
-    }
-
-    // Extrator v2.0 info
-    html += '<h2>Extrator de Dados Publicos v2.0</h2>' +
-      '<table><tr><th>Dominio</th><th>Fontes</th></tr>' +
-      '<tr><td>Financeiro</td><td>BCB/SGS, Tesouro, CVM, BNDES, SICONFI, BCB Estatisticas</td></tr>' +
-      '<tr><td>Ambiental</td><td>INPE Queimadas, PRODES, ANA, MapBiomas, ICMBio, Clima</td></tr>' +
-      '<tr><td>Geografico</td><td>IBGE Malhas, Localidades, CPRM, INPE Satelite</td></tr>' +
-      '<tr><td>Economico</td><td>IBGE/SIDRA, IPEADATA, dados.gov.br, Banco Mundial, RAIS</td></tr>' +
-      '<tr><td>Institucional</td><td>Camara, Senado, TSE, DATASUS, ANS, ANATEL, ANEEL</td></tr>' +
-      '<tr><td class="tag-info" style="font-weight:600">Internacional</td><td><strong>FMI, ONU, OCDE, OMS, BRICS, UNCTAD</strong></td></tr>' +
-      '</table>'
-
-    // ============================================================
-    // MANUS EVOLVE
-    // ============================================================
-    if (d.manus) {
-      html += '<h2>Manus Evolve</h2>'
-      html += '<div class="legenda-box"><strong>O que e Manus Evolve?</strong> E o motor de evolucao autonoma do ecossistema. Ele executa ciclos de: PLANEJAR > AGIR > REFLETIR > EXTRAIR > EVOLUIR. A cada ciclo, aprende padroes, gera novas skills e melhora o ecossistema automaticamente.</div>'
-      html += '<table><tr><th>Metrica</th><th>Valor</th><th>Significado</th></tr>' +
-        `<tr><td>Versao</td><td>${d.manus.version}</td><td>Versao do motor de evolucao</td></tr>` +
-        `<tr><td>Total Rounds</td><td>${d.manus.total_rounds}</td><td>Quantos ciclos de evolucao foram executados</td></tr>` +
-        `<tr><td>Skills Geradas</td><td>${d.manus.total_skills}</td><td>Quantas novas skills foram criadas pelo Motor Evolve</td></tr>` +
-        `<tr><td>Evolution Score</td><td>${d.manus.evolution_score}/100</td><td>Pontuacao geral de saude do ecossistema (quanto maior, melhor)</td></tr>` +
-        `<tr><td>Ciclos Analisados (Engine)</td><td>${d.knowledge?.ciclos_analisados ?? 0}</td><td>Quantas analises o motor de evolucao ja realizou</td></tr>` +
-        `<tr><td>Ultima Analise</td><td>${d.knowledge?.ultima_analise || 'Nunca'}</td><td>Quando foi a ultima vez que o motor analisou o ecossistema</td></tr>` +
-        '</table>'
-    }
-
-    // ============================================================
-    // LEGENDAS EXPLICATIVAS
-    // ============================================================
-    if (d.legendas) {
-      html += '<h2>Guia do Ecossistema (para leigos)</h2>'
-      const legendas = d.legendas
-      for (const [key, val] of Object.entries(legendas)) {
-        html += '<div class="legenda-box">'
-        html += '<details>'
-        html += '<summary><strong>' + val.titulo + '</strong></summary>'
-        html += '<p>' + val.explicacao + '</p>'
-        html += '<p><em>' + val.como_funciona + '</em></p>'
-        html += '</details>'
-        html += '</div>'
-      }
-    }
-
-    // ============================================================
-    // SKILLS DETALHADAS
-    // ============================================================
-    if (d.skills_detalhes && d.skills_detalhes.length > 0) {
-      html += '<h2>Skills Detalhadas</h2>'
-      html += '<div class="legenda-box"><strong>Skills</strong> sao manuais de instrucao para o AI. Cada skill ensina o assistente a fazer uma tarefa especifica (revisar codigo, buscar editais, extrair PDFs, etc). Abaixo, detalhes de cada skill com analise SWOT (Forcas, Fraquezas, Oportunidades, Ameacas).</div>'
-      for (const sk of d.skills_detalhes) {
-        const fmOk = sk.frontmatter_ok ? 'Sim' : 'Nao'
-        html += '<div class="skill-card">'
-        html += '<h3>' + sk.nome + '</h3>'
-        html += '<table class="skill-table">'
-        html += '<tr><td>Tamanho</td><td>' + sk.tamanho_kb + ' KB (' + sk.tamanho_bytes + ' bytes)</td><td>Quanto espaco a skill ocupa</td></tr>'
-        html += '<tr><td>Linhas</td><td>' + sk.linhas + '</td><td>Quantidade de linhas de instrucao</td></tr>'
-        html += '<tr><td>Scripts Vinculados</td><td>' + sk.scripts + '</td><td>Programas Python que a skill usa</td></tr>'
-        html += '<tr><td>Frontmatter OK</td><td>' + fmOk + '</td><td>Se a skill tem cabecalho padrao (nome, descricao)</td></tr>'
-        html += '<tr><td>Vazamento CJK</td><td>' + (sk.cjk_leak ? 'Sim' : 'Nao') + '</td><td>Se contem caracteres chineses indevidos</td></tr>'
-        html += '<tr><td>Caminho</td><td><code>' + sk.caminho + '</code></td><td>Localizacao no sistema de arquivos</td></tr>'
-        if (sk.scripts_lista && sk.scripts_lista.length > 0) {
-          html += '<tr><td>Scripts</td><td><code>' + sk.scripts_lista.join('<br>') + '</code></td><td>Programas auxiliares da skill</td></tr>'
-        }
-        html += '</table>'
-        // SWOT
-        if (sk.swot) {
-          html += '<div class="swot-box">'
-          html += '<details>'
-          html += '<summary><strong>Analise SWOT</strong> (clique para expandir)</summary>'
-          html += '<table class="swot-table">'
-          html += '<tr><th class="swot-forca">Forcas (S)</th><td>' + sk.swot.forcas + '</td></tr>'
-          html += '<tr><th class="swot-fraqueza">Fraquezas (W)</th><td>' + sk.swot.fraquezas + '</td></tr>'
-          html += '<tr><th class="swot-oportunidade">Oportunidades (O)</th><td>' + sk.swot.oportunidades + '</td></tr>'
-          html += '<tr><th class="swot-ameaca">Ameacas (T)</th><td>' + sk.swot.ameacas + '</td></tr>'
-          html += '</table>'
-          html += '</details>'
-          html += '</div>'
-        }
-        html += '</div>'
-      }
-    }
-
-    // ============================================================
-    // PLUGINS DETALHADOS
-    // ============================================================
-    if (d.plugins_detalhes && d.plugins_detalhes.length > 0) {
-      html += '<h2>Plugins Detalhados</h2>'
-      html += '<div class="legenda-box"><strong>Plugins</strong> sao programas em TypeScript que automatizam fluxos complexos. Eles rodam em segundo plano e sao ativados por comandos como /evolve.</div>'
-      html += '<table><tr><th>Plugin</th><th>Bytes</th><th>Linhas</th><th>Funcao</th></tr>'
-      for (const pl of d.plugins_detalhes) {
-        let funcao = ''
-        if (pl.nome === 'manus-evolve') funcao = 'Motor de evolucao autonoma: PLANEJAR > AGIR > REFLETIR > EXTRAIR > EVOLUIR'
-        else if (pl.nome === 'ecosystem-sync') funcao = 'Sincronizacao do ecossistema: valida, cruza dados e gera relatorio de saude'
-        else funcao = 'Plugin auxiliar do ecossistema'
-        html += '<tr><td><strong>' + pl.nome + '</strong></td><td>' + (pl.bytes/1024).toFixed(1) + ' KB</td><td>' + pl.linhas + '</td><td>' + funcao + '</td></tr>'
-      }
-      html += '</table>'
-
-      // SWOT PLUGINS
-      html += '<div class="swot-box">'
-      html += '<details>'
-      html += '<summary><strong>SWOT dos Plugins</strong></summary>'
-      html += '<table class="swot-table">'
-      html += '<tr><th class="swot-forca">Forcas</th><td>Automatizacao de fluxos complexos, ciclo evolutivo completo, codigo compacto (412-473 linhas)</td></tr>'
-      html += '<tr><th class="swot-fraqueza">Fraquezas</th><td>Dependem de TypeScript/Bun, logs de erro podem ser cripticos, estado salvo em JSON sujeito a corrupcao</td></tr>'
-      html += '<tr><th class="swot-oportunidade">Oportunidades</th><td>Novos plugins para tarefas especificas (dashboard, deploy, backup), watchdog mais robusto</td></tr>'
-      html += '<tr><th class="swot-ameaca">Ameacas</th><td>Mudancas no runtime Bun podem quebrar plugins, complexidade crescente pode tornar manutencao dificil</td></tr>'
-      html += '</table>'
-      html += '</details>'
-      html += '</div>'
-    }
-
-    // ============================================================
-    // MCPs
-    // ============================================================
-    if (d.mcps && d.mcps.length > 0) {
-      html += '<h2>MCPs (Ferramentas do Assistente AI)</h2>'
-      html += '<div class="legenda-box"><strong>MCPs (Model Context Protocol)</strong> sao ferramentas que o assistente AI pode usar para interagir com o mundo externo. Cada MCP e como um 'aplicativo' especializado: um para buscar na web, outro para executar codigo, outro para manipular arquivos, etc.</div>'
-      for (const cat of d.mcps) {
-        html += '<h3 style="margin-top:10px;color:#58a6ff">' + cat.categoria + '</h3>'
-        html += '<table><tr><th>MCP</th><th>Descricao</th><th>Para que serve</th></tr>'
-        for (const m of cat.mcps) {
-          html += '<tr><td><strong>' + m.nome + '</strong></td><td>' + m.descricao + '</td><td>' + m.funcao + '</td></tr>'
-        }
-        html += '</table>'
-      }
-
-      // SWOT MCPS
-      html += '<div class="swot-box">'
-      html += '<details>'
-      html += '<summary><strong>SWOT dos MCPs</strong></summary>'
-      html += '<table class="swot-table">'
-      html += '<tr><th class="swot-forca">Forcas</th><td>17 MCPs cobrindo busca, navegador, codigo, dados, raciocinio e infraestrutura; maioria nao requer chave de API; integracao nativa com o AI</td></tr>'
-      html += '<tr><th class="swot-fraqueza">Fraquezas</th><td>Dependem de conexao com internet (websearch, github); alguns requerem instalacao local (playwright, chrome-devtools); rate limits em APIs externas</td></tr>'
-      html += '<tr><th class="swot-oportunidade">Oportunidades</th><td>Adicionar MCPs para novas fontes de dados (LinkedIn, Twitter, databases SQL); integracao com mais APIs brasileiras via mcp-brasil</td></tr>'
-      html += '<tr><th class="swot-ameaca">Ameacas</th><td>APIs externas podem mudar ou ficar indisponiveis; bloqueios anti-bot (como DuckDuckGo); custo de chamadas de API</td></tr>'
-      html += '</table>'
-      html += '</details>'
-      html += '</div>'
-    }
-
-    // ============================================================
-    // AGENTES DETALHADOS
-    // ============================================================
-    if (d.agentes_detalhes && d.agentes_detalhes.length > 0) {
-      html += '<h2>Agentes do Ecossistema</h2>'
-      html += '<div class="legenda-box"><strong>Agentes</strong> sao sub-programas especializados que trabalham em equipe como uma linha de montagem. Cada um tem uma funcao unica e passa o resultado para o proximo. O conjunto forma o pipeline de pesquisa SEEKER: da busca inicial ao documento final.</div>'
-      html += '<table><tr><th>Agente</th><th>Tipo</th><th>Funcoes</th><th>O que faz (para leigos)</th></tr>'
-      for (const ag of d.agentes_detalhes) {
-        html += '<tr><td><strong>' + ag.nome + '</strong></td><td>' + ag.tipo + '</td><td>' + ag.funcoes + '</td><td>' + ag.funcao + '</td></tr>'
-      }
-      html += '</table>'
-
-      // SWOT AGENTES
-      html += '<div class="swot-box">'
-      html += '<details>'
-      html += '<summary><strong>SWOT dos Agentes</strong></summary>'
-      html += '<table class="swot-table">'
-      html += '<tr><th class="swot-forca">Forcas</th><td>Pipeline completo de pesquisa em 11 etapas; cada agente especializado em uma tarefa; resultados passam por revisao e validacao</td></tr>'
-      html += '<tr><th class="swot-fraqueza">Fraquezas</th><td>Pipeline sequencial (lento); depende de API Claude para funcionar; alguns agentes tem apenas 2 funcoes (escopo limitado)</td></tr>'
-      html += '<tr><th class="swot-oportunidade">Oportunidades</th><td>Execucao paralela de agentes independentes; adicionar novos agentes para tarefas especificas; integracao com MCPs para enriquecer resultados</td></tr>'
-      html += '<tr><th class="swot-ameaca">Ameacas</th><td>Custo de API Claude pode ser alto; agentes muito especializados podem ficar obsoletos; pipeline sequencial e ponto unico de falha</td></tr>'
-      html += '</table>'
-      html += '</details>'
-      html += '</div>'
-    }
-
-    // ============================================================
-    // LIMITES DO ECOSSISTEMA
-    // ============================================================
-    html += '<h2>Limites e Restricoes</h2>'
-    html += '<div class="legenda-box"><strong>Limites</strong> sao restricoes conhecidas de cada componente. Conhece-los ajuda a usar as ferramentas de forma adequada.</div>'
-    html += '<table><tr><th>Componente</th><th>Limite</th><th>Impacto</th></tr>'
-    html += '<tr><td>Skills</td><td>SKILL.md max 2.5KB</td><td>Skills muito grandes nao carregam corretamente no contexto do AI</td></tr>'
-    html += '<tr><td>Editais-br</td><td>DuckDuckGo bloqueia ~50% das req</td><td>Fallback offline com 52 editais curados garante resultados</td></tr>'
-    html += '<tr><td>Docling PDF</td><td>OCR lento (>10min/doc)</td><td>Usar pdfplumber como primario (<5s), docling como fallback</td></tr>'
-    html += '<tr><td>MCPs websearch</td><td>Rate limit, CAPTCHAs</td><td>Alternar entre DuckDuckGo, Bing e fontes diretas</td></tr>'
-    html += '<tr><td>APIs Gov</td><td>CAPES/CNPq 404, portais instaveis</td><td>Usar cache local e fallbacks offline</td></tr>'
-    html += '<tr><td>APIs Internacionais</td><td>ADB 403, FAO 521, OIT 404, UNESCO 404</td><td>Fallback para datasets de referencia conhecidos</td></tr>'
-    html += '<tr><td>Extrator v2.1</td><td>38 fontes, 6 dominios</td><td>Expansao planejada para 50+ fontes</td></tr>'
-    html += '<tr><td>Dashboard</td><td>Servidor HTTP stdlib (1 req/vez)</td><td>Nao usar para alto trafego; gerar HTML estatico para distribuicao</td></tr>'
-    html += '</table>'
-
-    document.getElementById('tables').innerHTML = html
-  } catch(e) {
-    document.getElementById('cards').innerHTML = `<div class="card red"><div class="value">Erro</div><div class="label">${e.message}</div></div>`
-  }
-}
-
-carregar()
-setInterval(carregar, 30000)
-</script>
-</body>
-</html>
-"""
-
-
-# =============================================================================
 # HTTP HANDLER
 # =============================================================================
 
 class DashboardHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(HTML_TEMPLATE.encode("utf-8"))
-        elif self.path == "/api/dados":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            dados = coletar_dados()
-            self.wfile.write(json.dumps(dados, ensure_ascii=False).encode("utf-8"))
-        elif self.path == "/api/scan":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.end_headers()
-            r = subprocess.run(
-                [sys.executable, str(WORKSPACE / "nexus/scripts/ecosystem_scanner.py"), "--scan"],
-                capture_output=True, text=True, timeout=30)
-            self.wfile.write(json.dumps({
-                "status": "ok" if r.returncode == 0 else "erro",
-                "output": r.stdout.strip(),
-                "error": r.stderr.strip()[:200] if r.stderr else "",
-            }, ensure_ascii=False).encode("utf-8"))
+        from urllib.parse import urlparse
+
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        # === API routes (prefix match on /api/*) ===
+        if path.startswith("/api/"):
+            return self._dispatch_api("GET", path, parsed, body=None)
+
+        # === Static assets (/assets/*) ===
+        if path.startswith("/assets/"):
+            return self._serve_asset(path)
+
+        # === Page routes (exact path match) ===
+        if path in PAGE_ROUTES:
+            return self._serve_page(PAGE_ROUTES[path])
+
+        # === Legacy data endpoint (preserved from v2.0) ===
+        if path == "/dados.json":
+            return self._serve_legacy_data()
+
+        # === 404 ===
+        self._send_json(404, {"error": "Not Found", "path": path})
+
+    def do_HEAD(self):
+        # Serve headers only (no body) for GET-able paths — supports curl -sI
+        self._head_only = True
+        try:
+            self.do_GET()
+        finally:
+            self._head_only = False
+
+    def do_PUT(self):
+        return self._dispatch_with_body("PUT")
+
+    def do_POST(self):
+        return self._dispatch_with_body("POST")
+
+    def _dispatch_with_body(self, method: str):
+        from urllib.parse import urlparse
+
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if not path.startswith("/api/"):
+            return self._send_json(405, {"error": "Method Not Allowed"})
+
+        # Read body (max 1 MB to prevent abuse)
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length > 1_048_576:
+                return self._send_json(413, {"error": "Payload too large (max 1 MB)"})
+            raw = self.rfile.read(length) if length else b""
+            body = json.loads(raw) if raw else None
+        except (json.JSONDecodeError, ValueError) as e:
+            return self._send_json(400, {"error": f"Invalid JSON body: {e}"})
+
+        return self._dispatch_api(method, path, parsed, body)
+
+    def _dispatch_api(self, method: str, path: str, parsed, body):
+        # Longest-prefix match
+        match = None
+        for prefix in sorted(API_HANDLERS.keys(), key=len, reverse=True):
+            if path == prefix or path.startswith(prefix + "/"):
+                match = (prefix, API_HANDLERS[prefix])
+                break
+
+        if not match:
+            return self._send_json(404, {"error": "API endpoint not found", "path": path})
+
+        try:
+            status, payload, content_type = match[1](self, method, parsed, body)
+        except Exception as e:
+            return self._send_json(500, {"error": str(e)})
+
+        if isinstance(payload, (dict, list)):
+            return self._send_json(status, payload)
+        elif isinstance(payload, str):
+            return self._send_text(status, payload, content_type)
+        elif isinstance(payload, bytes):
+            return self._send_bytes(status, payload, content_type)
         else:
-            self.send_response(404)
-            self.end_headers()
-            self.wfile.write(b"404")
+            return self._send_json(500, {"error": "Handler returned unsupported payload type"})
+
+    def _serve_page(self, rel_path: str):
+        full = Path(__file__).parent / rel_path
+        if not full.exists():
+            # PR-7..PR-10 pages return 404 until those PRs land
+            return self._send_json(404, {"error": f"Page not yet implemented: {rel_path}"})
+        try:
+            content = full.read_text(encoding="utf-8")
+        except Exception as e:
+            return self._send_json(500, {"error": str(e)})
+        return self._send_text(200, content, "text/html; charset=utf-8")
+
+    def _serve_asset(self, path: str):
+        # Strip leading slash, prevent directory traversal
+        safe = path.lstrip("/").replace("..", "")
+        full = Path(__file__).parent / "dashboard" / safe
+        if not full.is_file():
+            return self._send_json(404, {"error": "Asset not found"})
+        ext = full.suffix.lower()
+        content_types = {
+            ".js":   "application/javascript; charset=utf-8",
+            ".css":  "text/css; charset=utf-8",
+            ".html": "text/html; charset=utf-8",
+            ".json": "application/json; charset=utf-8",
+            ".svg":  "image/svg+xml",
+            ".png":  "image/png",
+        }
+        ct = content_types.get(ext, "application/octet-stream")
+        return self._send_bytes(200, full.read_bytes(), ct)
+
+    def _send_json(self, status: int, payload):
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        if not getattr(self, "_head_only", False):
+            self.wfile.write(body)
+
+    def _send_text(self, status: int, payload: str, content_type: str):
+        body = payload.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        if not getattr(self, "_head_only", False):
+            self.wfile.write(body)
+
+    def _send_bytes(self, status: int, payload: bytes, content_type: str):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        if not getattr(self, "_head_only", False):
+            self.wfile.write(payload)
+
+    def _serve_legacy_data(self):
+        # Preserves the v2.0 contract for any external consumers of /dados.json
+        return self._send_json(200, coletar_dados())
+
+    def log_message(self, format, *args):
+        # Suppress default access log noise; keep errors
+        pass
 
 
 def gerar_html_estatico():
     """Gera versao estatica do dashboard com dados inline."""
     dados = coletar_dados()
-    html = HTML_TEMPLATE.replace(
-        "async function carregar()",
-        "async function carregar() {\n  // Modo estatico\n"
-        f"  const d = {json.dumps(dados, ensure_ascii=False)}\n"
-        "  return render(d)\n"
-        "}\n\nasync function render(d)",
-    )
+    content = HTML_PATH.read_text(encoding="utf-8") if HTML_PATH.exists() else ""
+    if not content:
+        print(f"[dashboard v3] Aviso: {HTML_PATH} nao encontrado, usando template embutido")
+        return
     HTML_PATH.parent.mkdir(parents=True, exist_ok=True)
-    HTML_PATH.write_text(html, encoding="utf-8")
-    print(f"[dashboard v2] HTML estatico salvo em {HTML_PATH}")
-    print(f"[dashboard v2] Abra no navegador: file:///{HTML_PATH.as_posix()}")
+    HTML_PATH.write_text(content, encoding="utf-8")
+    print(f"[dashboard v3] HTML estatico em {HTML_PATH}")
+    print(f"[dashboard v3] Abra: file:///{HTML_PATH.as_posix()}")
 
 
 def main():
     import argparse
-    p = argparse.ArgumentParser(description="Dashboard do ecossistema v2.0")
+    p = argparse.ArgumentParser(description="Dashboard do ecossistema v3.0")
     p.add_argument("--porta", type=int, default=8081, help="Porta HTTP")
     p.add_argument("--gerar-only", action="store_true", help="So gera HTML estatico")
     args = p.parse_args()
@@ -835,10 +583,10 @@ def main():
     if args.gerar_only:
         return gerar_html_estatico()
 
-    server = HTTPServer(("0.0.0.0", args.porta), DashboardHandler)
-    print(f"[dashboard v2] Servidor em http://localhost:{args.porta}")
-    print(f"[dashboard v2] Graficos Chart.js via CDN")
-    print(f"[dashboard v2] Pressione Ctrl+C para parar")
+    server = HTTPServer(("127.0.0.1", args.porta), DashboardHandler)
+    print(f"Dashboard v3.0 (Foundation) em http://localhost:{args.porta}")
+    print(f"  Pages registered: {', '.join(PAGE_ROUTES)}")
+    print(f"  API handlers:     {', '.join(API_HANDLERS) or '(none yet — PR-6 foundation)'}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
