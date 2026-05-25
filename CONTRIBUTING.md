@@ -107,6 +107,48 @@ python -m pytest tests/ -v
 
 ---
 
+## Especializando o modelo de um agente (opcional)
+
+A partir do PR `feat(agents): per-agent model assignment for review panel + orientadores`, agentes podem declarar um modelo específico via frontmatter YAML, sobrepondo o default global de `opencode.json`. **Não é obrigatório**: agentes sem `model:` herdam o default do ecossistema.
+
+### Quando usar
+
+Use quando um agente:
+
+- **Precisa de capacidade específica** que o default não tem (vision, thinking, contexto > 200K).
+- **Tem perfil de custo/latência muito diferente** do default (ex: SEEKER quer modelo barato/rápido; PhD Auditor quer modelo top).
+- **Faz parte de um pipeline crítico** onde a qualidade do output justifica modelo premium.
+
+### Como usar
+
+Adicione no frontmatter (logo após `name:`):
+
+```yaml
+---
+name: meu-agente
+model: omniroute/claude-opus-4-7      # ou omniroute/auto, ou outro id
+description: ...
+mode: subagent
+---
+```
+
+### Onde consultar quais modelos usar
+
+Veja a tabela canônica em [`references/omniroute-model-mapping.md`](./references/omniroute-model-mapping.md). Ela lista categorias de agente e o modelo recomendado para cada uma, com justificativa e status atual.
+
+### Comportamento sem OmniRoute configurado
+
+Se o usuário do ecossistema **não ativou** o OmniRoute (não aplicou o `opencode.omniroute.json.example`), o OpenCode CLI cai no default global. **Sem crash, sem warning fatal.** Isto torna a diretriz `model:` segura mesmo em clientes que continuam usando `big-pickle` puro.
+
+### Antes de abrir PR
+
+- [ ] Declarar `model:` apenas se o agente realmente se beneficia da especialização.
+- [ ] Adicionar a linha correspondente na tabela de `references/omniroute-model-mapping.md`.
+- [ ] Justificar a escolha no corpo da PR (1-2 frases).
+- [ ] Mostrar `git diff --stat` para garantir que apenas frontmatter foi tocado.
+
+---
+
 ## Como Adicionar Nova Skill
 
 1. **Criar diretório** em `skills/<categoria>/` (ex: `skills/research/minha-skill/`)

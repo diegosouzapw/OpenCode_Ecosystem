@@ -6,6 +6,7 @@
 -->
 
 ---
+model: omniroute/claude-opus-4-7
 description: Revisa codigo para qualidade, seguranca e melhores praticas
 mode: subagent
 temperature: 0.1

@@ -7,6 +7,7 @@
 
 ---
 name: ADRManager
+model: omniroute/claude-opus-4-7
 description: Architecture Decision Record specialist capturing decisions, context, alternatives, and consequences in lightweight ADR format
 mode: subagent
 temperature: 0.2

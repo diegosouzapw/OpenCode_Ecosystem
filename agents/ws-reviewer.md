@@ -6,6 +6,7 @@
 -->
 
 ---
+model: omniroute/claude-opus-4-7
 description: Expert code reviewer for security, performance, and philosophy compliance
 mode: subagent
 ---

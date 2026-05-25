@@ -7,6 +7,7 @@
 
 ---
 name: ArchitectureAnalyzer
+model: omniroute/claude-opus-4-7
 description: DDD-driven architecture analyzer identifying bounded contexts, module boundaries, and domain relationships for multi-stage orchestration
 mode: subagent
 temperature: 0.2
