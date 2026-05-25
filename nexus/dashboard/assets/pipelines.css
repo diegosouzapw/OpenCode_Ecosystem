@@ -1,0 +1,54 @@
+.tabs { display: flex; gap: 4px; }
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-pane.hidden { display: none; }
+
+#runs-table tr { cursor: pointer; }
+#runs-table tr.selected { background: var(--bg-elevated); }
+#runs-table tr.status-running .status-dot { color: var(--success); }
+#runs-table tr.status-failed  .status-dot,
+#runs-table tr.status-timeout .status-dot { color: var(--danger); }
+#runs-table tr.status-cancelled .status-dot { color: var(--warning); }
+#runs-table tr.status-orphan .status-dot { color: var(--text-muted); }
+#runs-table tr.status-ok .status-dot { color: var(--success); }
+#runs-table td:nth-child(3) { font-family: var(--font-mono); font-size: 11px; }
+
+#drawer-terminal {
+  background: var(--bg-primary);
+  font-size: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+#modal-args-fields .field { margin-bottom: 12px; }
+#modal-args-fields label { display: block; margin-bottom: 4px; font-size: 12px; }
+#modal-args-fields label .required { color: var(--danger); }
+#modal-args-fields .desc { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+#modal-args-fields input,
+#modal-args-fields select {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+}

@@ -126,6 +126,35 @@ if _hs and _hp and _hm:
     # Factory pattern: stream needs references to providers + mcp modules
     api_register("/api/health/stream", _hs.handle_health_stream_factory(_hp, _hm))
 
+# === PR-9: Pipelines screen ===
+_pl = _load_api_module("pipelines_list")
+_pr = _load_api_module("pipelines_run")
+_ps = _load_api_module("pipelines_stream")
+
+if _pl:
+    api_register("/api/pipelines", _pl.handle_pipelines)
+
+if _pl or _ps:
+    def _route_runs(self, method, parsed, body):
+        parts = parsed.path.strip("/").split("/")
+        # /api/pipelines/runs  (exact — list runs)
+        if len(parts) == 3 and _pl:
+            return _pl.handle_runs(self, method, parsed, body)
+        # /api/pipelines/runs/<id>/output/stream
+        if len(parts) == 6 and parts[:3] == ["api", "pipelines", "runs"] \
+                and parts[4] == "output" and parts[5] == "stream" and _ps:
+            return _ps.handle_output_stream(self, method, parsed, body, parts[3])
+        # /api/pipelines/runs/<id>/cancel
+        if len(parts) == 5 and parts[:3] == ["api", "pipelines", "runs"] \
+                and parts[4] == "cancel" and _ps:
+            return _ps.handle_cancel(self, method, parsed, body, parts[3])
+        return 404, {"error": "Bad run route"}, "application/json"
+
+    api_register("/api/pipelines/runs", _route_runs)
+
+if _pr:
+    api_register("/api/pipelines/run", _pr.handle_run)
+
 
 def carregar_json(rel_path: str) -> dict | list | None:
     p = WORKSPACE / rel_path
