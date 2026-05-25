@@ -78,6 +78,40 @@ if _ping:
 else:
     print("[dashboard] Could not register /api/ping: module not found")
 
+# === PR-7: Agents & Models screen ===
+_agents_mod = _load_api_module("agents")
+if _agents_mod:
+    api_register("/api/agents", _agents_mod.handle_agents)
+
+_omni = _load_api_module("omniroute_proxy")
+if _omni:
+    api_register("/api/models", _omni.handle_models)
+    api_register("/api/combos", _omni.handle_combos)
+
+_sess = _load_api_module("session_combo")
+if _sess:
+    api_register("/api/session/combo", _sess.handle_session_combo)
+
+_changes = _load_api_module("agent_changes")
+if _changes:
+    # IMPORTANT: longest-prefix match means /api/agents/pending, /api/agents/diff,
+    # /api/agents/apply must register BEFORE the /api/agents/ catchall.
+    api_register("/api/agents/pending", _changes.handle_pending)
+    api_register("/api/agents/diff", _changes.handle_diff)
+    api_register("/api/agents/apply", _changes.handle_apply)
+
+    def _route_agent_model(self, method, parsed, body):
+        parts = parsed.path.strip("/").split("/")
+        # /api/agents/<name>/model
+        if len(parts) == 4 and parts[:2] == ["api", "agents"] and parts[3] == "model":
+            return _changes.handle_agent_model_put(self, method, parsed, body, parts[2])
+        # /api/agents/<name>/pending → DELETE
+        if len(parts) == 4 and parts[:2] == ["api", "agents"] and parts[3] == "pending":
+            return _changes.handle_agent_model_put(self, "DELETE", parsed, body, parts[2])
+        return 404, {"error": "Bad agent route"}, "application/json"
+
+    api_register("/api/agents/", _route_agent_model)
+
 
 def carregar_json(rel_path: str) -> dict | list | None:
     p = WORKSPACE / rel_path

@@ -1,0 +1,50 @@
+/* === agents.html specific === */
+
+.page-header { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+#agents-table td:nth-child(4) { font-family: var(--font-mono); font-size: 12px; }
+#agents-table .row-changed { background: rgba(88, 166, 255, 0.05); }
+#agents-table .star {
+  color: var(--warning);
+  margin-right: 4px;
+  cursor: help;
+}
+
+.cost-tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted var(--text-muted);
+}
+
+.cost-tooltip:hover::after {
+  content: attr(data-cost);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: var(--bg-elevated);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal-content { width: 90%; max-width: 900px; max-height: 80vh; overflow: auto; }
+
+#diff-content {
+  font-size: 12px;
+  background: var(--bg-primary);
+  padding: 12px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+#diff-content .diff-add { color: var(--success); }
+#diff-content .diff-del { color: var(--danger); }
+#diff-content .diff-meta { color: var(--text-muted); }
