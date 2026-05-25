@@ -21,7 +21,7 @@ import subprocess
 import sys
 from pathlib import Path
 from datetime import datetime
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 
 WORKSPACE = Path(__file__).parent.parent.resolve()
 CACHE_DIR = WORKSPACE / "cache"
@@ -111,6 +111,20 @@ if _changes:
         return 404, {"error": "Bad agent route"}, "application/json"
 
     api_register("/api/agents/", _route_agent_model)
+
+# === PR-8: Health screen (live monitoring with SSE) ===
+_hp = _load_api_module("health_providers")
+if _hp:
+    api_register("/api/health/providers", _hp.handle_health_providers)
+
+_hm = _load_api_module("health_mcp")
+if _hm:
+    api_register("/api/health/mcp", _hm.handle_health_mcp)
+
+_hs = _load_api_module("health_stream")
+if _hs and _hp and _hm:
+    # Factory pattern: stream needs references to providers + mcp modules
+    api_register("/api/health/stream", _hs.handle_health_stream_factory(_hp, _hm))
 
 
 def carregar_json(rel_path: str) -> dict | list | None:
@@ -516,6 +530,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         try:
             status, payload, content_type = match[1](self, method, parsed, body)
+            if status == -1:
+                return  # handler already wrote the response (SSE, file download, etc.)
         except Exception as e:
             return self._send_json(500, {"error": str(e)})
 
@@ -617,7 +633,7 @@ def main():
     if args.gerar_only:
         return gerar_html_estatico()
 
-    server = HTTPServer(("127.0.0.1", args.porta), DashboardHandler)
+    server = ThreadingHTTPServer(("127.0.0.1", args.porta), DashboardHandler)
     print(f"Dashboard v3.0 (Foundation) em http://localhost:{args.porta}")
     print(f"  Pages registered: {', '.join(PAGE_ROUTES)}")
     print(f"  API handlers:     {', '.join(API_HANDLERS) or '(none yet — PR-6 foundation)'}")
