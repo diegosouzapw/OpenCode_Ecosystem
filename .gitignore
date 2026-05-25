@@ -66,3 +66,6 @@ Desktop.ini
 # IDE
 .vscode/
 .idea/
+# OmniRoute integration — config backups (created by scripts/apply-omniroute-config.sh)
+opencode.json.bak.*
+opencode.json.merged.tmp
