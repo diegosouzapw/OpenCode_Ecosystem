@@ -1,0 +1,77 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // === ROTEAMENTO PRINCIPAL ===
+  // "omniroute/auto" usa a estratégia Auto-Combo do OmniRoute, que pontua
+  // os candidatos em tempo real considerando saúde, custo, latência, capacidade
+  // e contexto. Caso queira manter big-pickle como modelo principal e usar
+  // OmniRoute apenas como fallback, troque "omniroute/auto" por "opencode/big-pickle".
+  "model": "omniroute/auto",
+
+  // === MODELO PARA TAREFAS LEVES (títulos, autocomplete, classificação) ===
+  // big-pickle (200K/128K) é desperdício para essas tarefas. Gemini Flash gratuito
+  // é rápido, barato e mais que suficiente. Mantém o ecossistema "free-tier".
+  "small_model": "omniroute/gemini-2.5-flash",
+
+  "autoupdate": true,
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+
+  // === PLUGINS ===
+  // O plugin @omniroute/opencode-plugin é adicionado ao final da lista existente.
+  // Os 4 plugins originais permanecem intactos.
+  "plugin": [
+    "plugins/ecosystem-sync.ts",
+    "plugins/manus-evolve.ts",
+    "plugins/bernstein-sync.ts",
+    "plugins/antigravity-bridge.ts",
+    [
+      "@omniroute/opencode-plugin",
+      {
+        "providerId": "omniroute",
+        "displayName": "OmniRoute",
+
+        // Default = self-hosted local. Troque pela URL do seu tenant antes de aplicar
+        // este arquivo (cloud público ou outro self-hosted).
+        "baseURL": "http://localhost:20128",
+
+        "features": {
+          "combos": true,                  // habilita combos como pseudo-modelos
+          "enrichment": true,              // nomes + custos do /api/pricing
+          "compressionMetadata": true,     // tags 🟢🟡🟠🔴 em combos comprimidos
+          "providerTag": true,             // prefixo "Claude -", "Kiro -", etc.
+          "usableOnly": true,              // filtra providers sem conexão saudável
+          "diskCache": true,               // snapshot offline em ~/.local/share/opencode
+          "geminiSanitization": true,      // strip $schema/$ref para tools Gemini
+          "mcpAutoEmit": true              // auto-cria mcp.omniroute apontando para /api/mcp/stream
+        }
+      }
+    ]
+  ],
+
+  // === MCP SERVERS ===
+  // Lista MCP idêntica ao opencode.json original (41 servidores).
+  // O mcp.omniroute (37 tools extras) é gerado em runtime pelo mcpAutoEmit
+  // do plugin acima — não precisa declarar aqui.
+  // Veja GETTING_STARTED.md §5 para o comando que mescla a seção `mcp` do
+  // opencode.json original neste exemplo (o exemplo é JSONC, então `jq` puro
+  // não funciona — use o script Node documentado lá).
+  "mcp": {
+    "//": "Copie aqui as 41 entradas de opencode.json — esta seção é reproduzida na íntegra"
+  },
+
+  "lsp": {
+    "typescript": {
+      "command": ["typescript-language-server", "--stdio"],
+      "initialization": {
+        "preferences": {
+          "importModuleSpecifierPreference": "relative"
+        }
+      }
+    }
+  }
+}

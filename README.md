@@ -45,6 +45,7 @@ O **OpenCode Ecosystem** é uma plataforma de inteligência artificial que coord
 6. **Modelo gratuito** — Opera com o modelo `big-pickle` (OpenCode Zen), que oferece 200K tokens de contexto e 128K de saída, sem custo.
 
 > **Modelo base:** `opencode/big-pickle` — OpenCode Zen, 200K tokens de contexto, 128K tokens de saída  
+> **Gateway opcional:** [OmniRoute](https://github.com/diegosouzapw/OmniRoute) — roteamento multi-provedor com 14 estratégias de combo, 3 camadas de resiliência e fallback automático preservando a cadeia gratuita. Veja [`GETTING_STARTED.md`](GETTING_STARTED.md#5-opcional-habilitar-omniroute-como-gateway-de-llms).  
 > **Workspace:** `C:\Users\marce\.config\opencode`
 
 ---
