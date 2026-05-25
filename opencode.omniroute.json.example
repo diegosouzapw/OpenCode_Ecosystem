@@ -35,10 +35,9 @@
         "providerId": "omniroute",
         "displayName": "OmniRoute",
 
-        // Substitua pelo seu tenant OmniRoute. Default sugerido:
-        //   - self-hosted local: "http://localhost:20128"
-        //   - cloud público:     "https://or.cx.com.br" (se aplicável)
-        "baseURL": "https://or.cx.com.br",
+        // Default = self-hosted local. Troque pela URL do seu tenant antes de aplicar
+        // este arquivo (cloud público ou outro self-hosted).
+        "baseURL": "http://localhost:20128",
 
         "features": {
           "combos": true,                  // habilita combos como pseudo-modelos
@@ -58,9 +57,9 @@
   // Lista MCP idêntica ao opencode.json original (41 servidores).
   // O mcp.omniroute (37 tools extras) é gerado em runtime pelo mcpAutoEmit
   // do plugin acima — não precisa declarar aqui.
-  // Copie a seção "mcp": { ... } do opencode.json original para esta posição
-  // ao renomear o arquivo, ou rode:
-  //   jq -s '.[0] * {mcp: .[1].mcp}' opencode.omniroute.json.example opencode.json > opencode.merged.json
+  // Veja GETTING_STARTED.md §5 para o comando que mescla a seção `mcp` do
+  // opencode.json original neste exemplo (o exemplo é JSONC, então `jq` puro
+  // não funciona — use o script Node documentado lá).
   "mcp": {
     "//": "Copie aqui as 41 entradas de opencode.json — esta seção é reproduzida na íntegra"
   },

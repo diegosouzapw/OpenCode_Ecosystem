@@ -83,15 +83,14 @@ O OpenCode Ecosystem opera por padrão com o modelo gratuito `opencode/big-pickl
 # 1. Instalar o plugin OmniRoute
 npm install --prefix ~/.config/opencode @omniroute/opencode-plugin
 
-# 2. Validar saúde do tenant OmniRoute (substitua <BASE_URL> pelo seu)
-bash scripts/check-omniroute-health.sh https://or.cx.com.br
+# 2. Validar saúde do tenant OmniRoute
+#    Substitua <BASE_URL> pelo seu endpoint (self-hosted local: http://localhost:20128).
+bash scripts/check-omniroute-health.sh <BASE_URL>
 
-# 3. Aplicar a config OmniRoute
-#    Backup do arquivo atual:
-cp opencode.json opencode.json.bak
-#    Mescla as 41 entradas mcp do original no exemplo:
-jq -s '.[0] * {mcp: .[1].mcp}' opencode.omniroute.json.example opencode.json > opencode.merged.json
-mv opencode.merged.json opencode.json
+# 3. Aplicar a config OmniRoute. O script faz backup automático com timestamp,
+#    strip dos comentários JSONC do .example, e mescla a seção `mcp` do
+#    opencode.json original. Requer: node (para parse JSONC string-aware).
+bash scripts/apply-omniroute-config.sh
 
 # 4. Configurar a API key (gerada no dashboard do tenant OmniRoute)
 opencode auth login --provider omniroute
@@ -101,7 +100,9 @@ opencode auth login --provider omniroute
 **Reverter:**
 
 ```bash
-mv opencode.json.bak opencode.json
+# Localizar backup mais recente
+LAST_BACKUP=$(ls -t opencode.json.bak.* 2>/dev/null | head -1)
+[ -n "$LAST_BACKUP" ] && cp "$LAST_BACKUP" opencode.json && echo "Restored from $LAST_BACKUP"
 # (opcional) Remover plugin instalado:
 rm -rf ~/.config/opencode/node_modules/@omniroute
 ```
