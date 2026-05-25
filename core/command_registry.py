@@ -36,6 +36,7 @@ TRIGGER_MAP: dict[str, list[str]] = {
     "quantum": ["/quantum", "quantum"],
     "research": ["/research", "research"],
     "reversa": ["/reversa", "reversa", "reverse engineering", "iniciar análise", "engenharia reversa"],
+    "route": ["/route", "/r", "/combo", "route", "combo"],
     "review": ["/review", "review"],
     "ticket": ["/ticket", "ticket"],
     "workspaces": ["/workspaces", "workspaces"],

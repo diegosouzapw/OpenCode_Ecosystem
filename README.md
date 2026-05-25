@@ -169,6 +169,7 @@ Estes são os comandos que o usuário pode executar diretamente no OpenCode CLI.
 | `/plan` | Cria planos estruturados de escrita ou desenvolvimento | writing-plans skill + sequential-thinking MCP |
 | `/auto` | Modo autônomo total — o sistema decide quais agentes e MCPs utilizar | openagent + todos os MCPs ativos (17 de 40 registrados) |
 | `/ticket` | Gerencia tickets Jira via bridge CommandRegistry | Jira ticket manager via CommandRegistry bridge |
+| `/route` | Define o combo OmniRoute (estratégia de roteamento) ativo na sessão | `route_command_handler` em `core/command_registry.py` |
 
 ---
 
