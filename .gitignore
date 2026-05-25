@@ -69,3 +69,7 @@ Desktop.ini
 # OmniRoute integration — config backups (created by scripts/apply-omniroute-config.sh)
 opencode.json.bak.*
 opencode.json.merged.tmp
+
+# OmniRoute PR-7 — pending changes + session env
+.evolve/session-env.json
+.evolve/pending-agent-changes.json
