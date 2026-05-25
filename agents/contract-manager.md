@@ -7,6 +7,7 @@
 
 ---
 name: ContractManager
+model: omniroute/claude-opus-4-7
 description: API contract management specialist enabling parallel development through contract-first design with OpenAPI/Swagger support
 mode: subagent
 temperature: 0.1

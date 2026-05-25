@@ -6,6 +6,7 @@
 -->
 
 ---
+model: omniroute/claude-opus-4-7
 description: Realiza auditorias de seguranca e identifica vulnerabilidades
 mode: subagent
 temperature: 0.1

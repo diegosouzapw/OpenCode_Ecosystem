@@ -6,6 +6,7 @@
 -->
 
 ---
+model: omniroute/claude-opus-4-7
 description: Projeta arquitetura de software e toma decisoes de design
 mode: subagent
 temperature: 0.1

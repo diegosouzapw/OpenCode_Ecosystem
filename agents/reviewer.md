@@ -7,6 +7,7 @@
 
 ---
 name: CodeReviewer
+model: omniroute/claude-opus-4-7
 description: Code review, security, and quality assurance agent
 mode: subagent
 temperature: 0.1
