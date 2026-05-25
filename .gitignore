@@ -73,3 +73,6 @@ opencode.json.merged.tmp
 # OmniRoute PR-7 — pending changes + session env
 .evolve/session-env.json
 .evolve/pending-agent-changes.json
+
+# OmniRoute PR-9 — pipeline run logs (ephemeral, never commit)
+.evolve/pipeline-runs/
