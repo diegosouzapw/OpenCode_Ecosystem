@@ -406,7 +406,7 @@ export const EcosystemSyncPlugin: Plugin = async ({ project, client, $, director
   return {
     // ============ SESSION START: Full validation + token sync ============
     "session.created": async () => {
-      console.log("[EcosystemSync v3.5] Running full cross-validation...")
+      console.log("[EcosystemSync v3.6] Running full cross-validation...")
 
       try {
         const configPath = `${directory}/opencode.json`

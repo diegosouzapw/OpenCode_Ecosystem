@@ -21,8 +21,9 @@
 
   // Safe own-property read: never traverses the prototype chain.
   function safeGet(o, k) {
-    if (!isSafeKey(k) || !o || typeof o !== "object") return undefined;
-    return Object.prototype.hasOwnProperty.call(o, k) ? Reflect.get(Object.prototype, "valueOf").call(o) === o ? o[k] : undefined : undefined;
+    if (!o || typeof o !== "object") return undefined;
+    if (!Object.prototype.hasOwnProperty.call(o, k)) return undefined;
+    return o[k];
   }
 
   // Get nested value: getNested(obj, "features.combos")
