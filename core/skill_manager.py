@@ -105,19 +105,35 @@ class SkillManager:
         for search_dir in self._search_dirs:
             if not search_dir.exists():
                 continue
-            # Procura SKILL.md em subdiretórios (cada skill é um diretório)
-            for skill_dir in search_dir.iterdir():
-                if not skill_dir.is_dir():
+            # Procura SKILL.md em subdiretórios (cada skill é um diretório).
+            # Supports two layouts:
+            #   Depth 1: skills/<name>/SKILL.md  (existing behavior)
+            #   Depth 2: skills/<category>/<name>/SKILL.md  (new — e.g. system/*)
+            for entry in search_dir.iterdir():
+                if not entry.is_dir():
                     continue
-                skill_file = skill_dir / self.SKILL_FILENAME
-                if not skill_file.exists():
-                    continue
-                name = skill_dir.name
-                if name not in self._skills:
-                    self._skills[name] = SkillInstance(
-                        meta=SkillMeta(name=name, file_path=skill_file)
-                    )
-                    found.append(name)
+                skill_file = entry / self.SKILL_FILENAME
+                if skill_file.exists():
+                    # Depth-1 hit
+                    name = entry.name
+                    if name not in self._skills:
+                        self._skills[name] = SkillInstance(
+                            meta=SkillMeta(name=name, file_path=skill_file)
+                        )
+                        found.append(name)
+                else:
+                    # Depth-2 scan: entry is a category directory
+                    for sub in entry.iterdir():
+                        if not sub.is_dir():
+                            continue
+                        sub_skill_file = sub / self.SKILL_FILENAME
+                        if sub_skill_file.exists():
+                            name = sub.name
+                            if name not in self._skills:
+                                self._skills[name] = SkillInstance(
+                                    meta=SkillMeta(name=name, file_path=sub_skill_file)
+                                )
+                                found.append(name)
 
         if found:
             logger.info("Discovered %d skills", len(found))
