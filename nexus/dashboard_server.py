@@ -155,6 +155,30 @@ if _pl or _ps:
 if _pr:
     api_register("/api/pipelines/run", _pr.handle_run)
 
+# === PR-10: Plugins screen ===
+_plg = _load_api_module("plugins_list")
+if _plg:
+    api_register("/api/plugins", _plg.handle_plugins)
+
+_pchg = _load_api_module("plugin_changes")
+if _pchg:
+    # Specific endpoints BEFORE the /<id> catchall (longest-prefix match)
+    api_register("/api/plugins/pending", _pchg.handle_pending)
+    api_register("/api/plugins/diff", _pchg.handle_diff)
+    api_register("/api/plugins/apply", _pchg.handle_apply)
+
+    def _route_plugin(self, method, parsed, body):
+        parts = parsed.path.strip("/").split("/")
+        # /api/plugins/<id>/pending → DELETE for unstaging
+        if len(parts) == 4 and parts[:2] == ["api", "plugins"] and parts[3] == "pending":
+            return _pchg.handle_plugin_put(self, "DELETE", parsed, body, parts[2])
+        # /api/plugins/<id> → PUT for staging
+        if len(parts) == 3 and parts[:2] == ["api", "plugins"]:
+            return _pchg.handle_plugin_put(self, method, parsed, body, parts[2])
+        return 404, {"error": "Bad plugin route"}, "application/json"
+
+    api_register("/api/plugins/", _route_plugin)
+
 
 def carregar_json(rel_path: str) -> dict | list | None:
     p = WORKSPACE / rel_path
