@@ -179,6 +179,11 @@ if _pchg:
 
     api_register("/api/plugins/", _route_plugin)
 
+# === PR-11 fix: restore /api/dados regression from PR-6 ===
+_overview = _load_api_module("overview_data")
+if _overview:
+    api_register("/api/dados", _overview.handle_dados)
+
 
 def carregar_json(rel_path: str) -> dict | list | None:
     p = WORKSPACE / rel_path
@@ -549,6 +554,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         return self._dispatch_with_body("POST")
 
+    def do_DELETE(self):
+        return self._dispatch_with_body("DELETE")
+
     def _dispatch_with_body(self, method: str):
         from urllib.parse import urlparse
 
@@ -571,12 +579,24 @@ class DashboardHandler(BaseHTTPRequestHandler):
         return self._dispatch_api(method, path, parsed, body)
 
     def _dispatch_api(self, method: str, path: str, parsed, body):
-        # Longest-prefix match
+        # Two-pass dispatch:
+        #   1. Exact-match on the registered prefix string (highest priority).
+        #      So '/api/agents' exact request hits handle_agents, NOT the
+        #      '/api/agents/' catchall that also exists.
+        #   2. Longest-prefix startswith using the normalized prefix (with
+        #      any trailing '/' trimmed). Registrations like '/api/agents/'
+        #      correctly catch '/api/agents/<name>/<...>' paths this way.
         match = None
-        for prefix in sorted(API_HANDLERS.keys(), key=len, reverse=True):
-            if path == prefix or path.startswith(prefix + "/"):
-                match = (prefix, API_HANDLERS[prefix])
-                break
+        # Pass 1: exact
+        if path in API_HANDLERS:
+            match = (path, API_HANDLERS[path])
+        # Pass 2: longest-prefix startswith on normalized form
+        if match is None:
+            for prefix in sorted(API_HANDLERS.keys(), key=len, reverse=True):
+                normalized = prefix.rstrip("/")
+                if normalized and path.startswith(normalized + "/"):
+                    match = (prefix, API_HANDLERS[prefix])
+                    break
 
         if not match:
             return self._send_json(404, {"error": "API endpoint not found", "path": path})
