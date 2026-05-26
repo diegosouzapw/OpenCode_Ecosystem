@@ -1,0 +1,72 @@
+#plugins-table tr.row-changed { background: rgba(88, 166, 255, 0.05); }
+#plugins-table tr.row-expanded { background: var(--bg-secondary); }
+
+.toggle {
+  display: inline-block;
+  width: 36px;
+  height: 18px;
+  background: var(--bg-elevated);
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.toggle.on { background: var(--success); }
+.toggle .knob {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: left 0.15s;
+}
+.toggle.on .knob { left: 20px; }
+
+.options-form {
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 4px 12px 12px 12px;
+}
+.options-form .field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.options-form .field label {
+  min-width: 180px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.options-form .field input[type="text"],
+.options-form .field input[type="number"] {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.options-form .features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.options-form .features label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: auto;
+}
+
+#diff-content { font-size: 12px; }
+#diff-content .diff-add { color: var(--success); }
+#diff-content .diff-del { color: var(--danger); }
+#diff-content .diff-meta { color: var(--text-muted); }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Nexus › Plugins</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/plugins.css">
+</head>
+<body>
+  <div class="layout">
+    <div id="nav"></div>
+    <main class="main">
+      <header class="page-header flex between">
+        <div>
+          <h1 style="margin:0">Plugins</h1>
+          <small class="muted">Configure plugins do <code>opencode.json</code>. Pending pattern com diff preview.</small>
+        </div>
+        <div class="flex">
+          <strong class="status-warn">⚠ Restart CLI required after edits</strong>
+          <button id="how-restart-btn" class="btn">[How to restart]</button>
+        </div>
+      </header>
+
+      <!-- Comments warning banner -->
+      <div id="comments-banner" class="hidden" style="margin-top:12px"></div>
+
+      <!-- Filters -->
+      <section class="filters panel" style="margin-top:16px">
+        <div class="flex" style="gap:12px; flex-wrap:wrap">
+          <label class="flex" style="gap:4px">
+            <span class="muted">Search:</span>
+            <input id="filter-search" type="text" placeholder="plugin name…" class="btn"
+                   style="font-family:var(--font-mono);width:200px">
+          </label>
+          <div class="spacer"></div>
+          <small class="muted" id="plugin-counts">—</small>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="table-section" style="margin-top:16px">
+        <table class="table" id="plugins-table">
+          <thead>
+            <tr>
+              <th style="width:80px">ENABLED</th>
+              <th>PLUGIN</th>
+              <th style="width:80px">VERSION</th>
+              <th style="width:80px">STATUS</th>
+              <th>OPTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="plugins-tbody">
+            <tr><td colspan="5" class="muted" style="text-align:center;padding:24px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Pending bar -->
+      <footer class="pending-bar flex between" style="margin-top:16px; padding:12px;
+              background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px">
+        <div class="flex">
+          <span class="muted">Pending:</span>
+          <strong id="pending-count">0</strong>
+          <span class="muted">changes</span>
+        </div>
+        <div class="flex">
+          <button id="preview-diff-btn" class="btn" disabled>Preview Diff</button>
+          <button id="apply-btn" class="btn primary" disabled>Apply</button>
+          <button id="discard-btn" class="btn danger" disabled>Discard</button>
+        </div>
+      </footer>
+
+      <!-- Diff modal -->
+      <div id="diff-modal" class="modal hidden">
+        <div class="modal-content panel">
+          <div class="flex between">
+            <h2 style="margin:0">Apply changes to opencode.json</h2>
+            <button class="btn" id="diff-close-btn">✕</button>
+          </div>
+          <div id="diff-warning" class="hidden" style="margin-top:8px;color:var(--warning)">
+            ⚠ opencode.json contains comments or JSONC features. Apply will lose them.
+            A backup will be created at <code>opencode.json.bak.&lt;timestamp&gt;</code>.
+          </div>
+          <pre id="diff-content" class="mono" style="max-height:60vh; overflow:auto; margin-top:12px"></pre>
+          <div class="flex between" style="margin-top:12px">
+            <small class="muted">After Apply, restart OpenCode CLI for changes to take effect.</small>
+            <div class="flex">
+              <button class="btn" id="diff-cancel-btn">Cancel</button>
+              <button class="btn primary" id="diff-apply-btn">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Restart info modal -->
+      <div id="restart-modal" class="modal hidden">
+        <div class="modal-content panel" style="width:600px">
+          <div class="flex between">
+            <h2 style="margin:0">How to restart OpenCode CLI</h2>
+            <button class="btn" id="restart-close-btn">✕</button>
+          </div>
+          <div style="margin-top:12px">
+            <p>Plugin changes only take effect when OpenCode CLI re-reads the config:</p>
+            <ol>
+              <li>Save your work in any active OpenCode session.</li>
+              <li>Exit OpenCode (Ctrl+D or <code>/exit</code>).</li>
+              <li>Run <code>opencode</code> again to start a new session.</li>
+            </ol>
+            <p class="muted">The Nexus Dashboard does NOT restart OpenCode automatically.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/nav.js"></script>
+  <script src="/assets/plugins.js"></script>
+  <script>renderNav("plugins");</script>
+</body>
+</html>
