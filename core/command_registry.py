@@ -7,12 +7,17 @@ Serve como ponte entre o ecossistema TypeScript (OpenCode) e Python (core).
 from __future__ import annotations
 
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
+
+# Allowlist for command names derived from filesystem stems.
+# Prevents path-traversal-shaped strings from ever appearing in trigger lists.
+_SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 
 
 @dataclass
@@ -90,6 +95,9 @@ class CommandRegistry:
 
         for md_file in md_files:
             name = md_file.stem
+            if not _SAFE_NAME_RE.match(name):
+                logger.warning("Skipping command file with unsafe name: %s", md_file.name)
+                continue
             description = self._parse_frontmatter_description(md_file)
             triggers = TRIGGER_MAP.get(name, [f"/{name}", name])
 
@@ -172,6 +180,88 @@ class CommandRegistry:
         except Exception as e:
             logger.debug("Error parsing frontmatter from %s: %s", md_file, e)
         return ""
+
+
+def route_command_handler(args: list[str]) -> dict[str, Any]:
+    """
+    /route slash command handler.
+
+    Sets OMNIROUTE_COMBO env var for the current OpenCode session,
+    selecting the routing strategy for subsequent pipeline calls.
+
+    Args:
+        args: list of CLI args.
+            - empty / ["--list"]: print current + available combos
+            - ["none"]: clear OMNIROUTE_COMBO
+            - [<slug>]: activate combo if slug is in
+              ECOSYSTEM_OMNIROUTE_COMBO_SLUGS (CSV from ecosystem-sync v3.6)
+              or in built-in slugs.
+
+    Returns:
+        dict with:
+            - success: bool
+            - message: str (user-facing)
+            - env_updates: dict[str, str | None] (None to unset)
+    """
+    base_url = os.environ.get("OMNIROUTE_BASE_URL", "").strip()
+    if not base_url:
+        return {
+            "success": False,
+            "message": (
+                "OmniRoute not active. Set OMNIROUTE_BASE_URL and apply "
+                "opencode.omniroute.json.example (see GETTING_STARTED.md §5)."
+            ),
+            "env_updates": {},
+        }
+
+    known_csv = os.environ.get("ECOSYSTEM_OMNIROUTE_COMBO_SLUGS", "").strip()
+    known_slugs = [s.strip() for s in known_csv.split(",") if s.strip()]
+    builtin_slugs = ["auto", "auto-free", "none"]
+    valid_slugs = sorted(set(known_slugs) | set(builtin_slugs))
+
+    current = os.environ.get("OMNIROUTE_COMBO", "").strip() or "(not set)"
+
+    if not args or args[0] == "--list":
+        lines = [
+            f"Current combo: {current}",
+            f"OmniRoute tenant: {base_url}",
+            "",
+            "Available combos:",
+            *[f"  - {s}" for s in valid_slugs],
+            "",
+            "Usage: /route <slug>  |  /route none  |  /route --list",
+        ]
+        return {
+            "success": True,
+            "message": "\n".join(lines),
+            "env_updates": {},
+        }
+
+    slug = args[0].strip()
+
+    if slug == "none":
+        return {
+            "success": True,
+            "message": "OMNIROUTE_COMBO cleared. Subsequent calls use direct model routing.",
+            "env_updates": {"OMNIROUTE_COMBO": None},  # None = unset
+        }
+
+    if slug not in valid_slugs:
+        return {
+            "success": False,
+            "message": (
+                f"Unknown combo '{slug}'.\n"
+                f"Available: {', '.join(valid_slugs)}\n"
+                f"Run /route --list for details."
+            ),
+            "env_updates": {},
+        }
+
+    return {
+        "success": True,
+        "message": f"Active combo: {slug}\n(applies to subsequent /artigo, /reversa, /quantum, etc.)",
+        "env_updates": {"OMNIROUTE_COMBO": slug},
+    }
 
 
 def discover_command_dir(base_dir: Optional[str | Path] = None) -> Path:
