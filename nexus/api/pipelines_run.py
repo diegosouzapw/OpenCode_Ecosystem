@@ -27,6 +27,11 @@ RUNS_DIR = WORKSPACE / ".evolve" / "pipeline-runs"
 # Hard cap on concurrent runs (defensive)
 MAX_GLOBAL_CONCURRENT = 8
 
+# Serialize active-runs check + run_dir creation to close a TOCTOU
+# window where two concurrent POSTs of the same command could both
+# pass the per-command 409 check before either reserved its slot.
+_SPAWN_LOCK = threading.Lock()
+
 # Max value sizes
 MAX_ARG_VALUE_LEN = 4096
 MAX_ARGS_TOTAL_LEN = 16384
@@ -321,50 +326,51 @@ def handle_run(self, method, parsed, body):
     if not ok:
         return 400, {"error": err}, "application/json"
 
-    # 3) Concurrency
-    active = _active_runs()
-    if len(active) >= MAX_GLOBAL_CONCURRENT:
-        return 429, {"error": f"Too many active runs ({MAX_GLOBAL_CONCURRENT} max)"}, "application/json"
-
-    if not spec.get("allow_concurrent"):
-        for d in active:
-            try:
-                meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))
-                if meta.get("command") == f"/{cmd}":
-                    return 409, {
-                        "error": f"Another run of /{cmd} is active (run_id={d.name}). Cancel or wait.",
-                    }, "application/json"
-            except Exception:
-                pass
-
-    # 4) Resolve handler argv
+    # 4) Resolve handler argv (outside lock — no shared state)
     argv = _resolve_handler(spec)
     if not argv:
         return 501, {
             "error": f"No resolver for /{cmd}. Add 'pipeline: script:...' or 'pipeline: module:...' to command frontmatter, or create nexus/scripts/run_command.py as fallback.",
         }, "application/json"
 
-    # 5) Create run dir
-    run_id = _run_id()
-    run_dir = RUNS_DIR / run_id
-    try:
-        run_dir.mkdir(parents=True, exist_ok=False)
-    except FileExistsError:
-        return 500, {"error": "run_id collision"}, "application/json"
+    # 3+5) Concurrency check + run_dir creation under lock to close TOCTOU window
+    with _SPAWN_LOCK:
+        active = _active_runs()
+        if len(active) >= MAX_GLOBAL_CONCURRENT:
+            return 429, {"error": f"Too many active runs ({MAX_GLOBAL_CONCURRENT} max)"}, "application/json"
 
-    started_at = datetime.now(timezone.utc).isoformat()
-    meta = {
-        "run_id": run_id,
-        "command": f"/{cmd}",
-        "args": args,
-        "status": "running",
-        "pid": None,
-        "started_at": started_at,
-        "argv": argv,
-    }
-    (run_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+        if not spec.get("allow_concurrent"):
+            for d in active:
+                try:
+                    meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))
+                    if meta.get("command") == f"/{cmd}":
+                        return 409, {
+                            "error": f"Another run of /{cmd} is active (run_id={d.name}). Cancel or wait.",
+                        }, "application/json"
+                except Exception:
+                    pass
 
-    # 6) Spawn
+        # Create run dir inside lock so the slot is reserved before lock release
+        run_id = _run_id()
+        run_dir = RUNS_DIR / run_id
+        try:
+            run_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            return 500, {"error": "run_id collision"}, "application/json"
+
+        started_at = datetime.now(timezone.utc).isoformat()
+        meta = {
+            "run_id": run_id,
+            "command": f"/{cmd}",
+            "args": args,
+            "status": "running",
+            "pid": None,
+            "started_at": started_at,
+            "argv": argv,
+        }
+        (run_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+    # 6) Spawn — outside lock (subprocess startup is slow)
     pid, err = _spawn(run_dir, argv, args)
     if err:
         meta["status"] = "failed"

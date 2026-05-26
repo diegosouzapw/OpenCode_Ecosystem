@@ -20,7 +20,9 @@ WORKSPACE = Path(__file__).parent.parent.parent.resolve()
 CONFIG_PATH = WORKSPACE / "opencode.json"
 STAGING_FILE = WORKSPACE / ".evolve" / "pending-plugin-changes.json"
 
-PLUGIN_ID_RE = re.compile(r"^[A-Za-z0-9@_./-]{1,200}$")
+# Plugin id allows letters, digits, @ _ . / - but rejects '..' sequences
+# (defense-in-depth even though id is only used as a dict key, not a path).
+PLUGIN_ID_RE = re.compile(r"^(?!.*\.\.)[A-Za-z0-9@_./-]{1,200}$")
 
 
 # ===== Storage =====

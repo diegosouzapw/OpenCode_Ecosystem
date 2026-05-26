@@ -52,6 +52,7 @@ const TRIGGER_MAP: Record<string, string[]> = {
   research:     ["/research", "research"],
   reversa:      ["/reversa", "reversa", "reverse engineering", "iniciar análise", "engenharia reversa"],
   review:       ["/review", "review"],
+  route:        ["/route", "/r", "/combo", "route", "combo"],
   ticket:       ["/ticket", "ticket"],
   workspaces:   ["/workspaces", "workspaces"],
   worktree:     ["/worktree", "worktree"],
