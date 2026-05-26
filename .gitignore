@@ -76,3 +76,4 @@ opencode.json.merged.tmp
 
 # OmniRoute PR-9 — pipeline run logs (ephemeral, never commit)
 .evolve/pipeline-runs/
+.evolve/pending-plugin-changes.json
